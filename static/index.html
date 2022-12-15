@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="fr" class="bg-black text-white">
+<head>
+    <meta charset="UTF-8">
+    <title>AYOTI</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+    <script>
+      tailwind.config = {
+        theme: {
+          fontFamily: {
+            sans: [
+              "Inter var, sans-serif",
+              { fontFeatureSettings: '"cv11", "ss01"' },
+            ],
+          },
+        },
+      }
+    </script>
+</head>
+<body class="flex flex-col gap-4 md:gap-6 bg-gradient-to-br from-blue-900 to-blue-900/25 min-h-screen py-4 px-6 md:py-8 md:px-12">
+    <div class="flex flex-row justify-end w-full gap-6">
+        <div class="flex flex-col justify-center text-right">
+            <span class="text-lg font-bold leading-5 pt-1">Prénom Nom</span>
+            <small class="font-light">Nom d'utilisateur</small>
+        </div>
+
+        <img src="https://thispersondoesnotexist.com/image" class="h-16 w-16 rounded-full">
+    </div>
+
+    <div class="flex flex-col md:flex-row gap-12 container mx-auto md:px-6 md:pb-16 h-full">
+        <div class="flex flex-col gap-6 md:gap-12 w-full">
+            <div class="h-96 rounded-3xl bg-white/20 w-full relative overflow-hidden">
+                <div class="flex flex-col p-8 z-20">
+                    <h1 class="text-7xl font-bold drop-shadow-lg">18°C</h1>
+                    <span class="drop-shadow-lg tracking-wider">Humidité : <b>20%</b></span>
+                    <span class="drop-shadow-lg tracking-wider">Batterie : <b>69%</b></span>
+                </div>
+
+                <div class="absolute left-0 right-0 bottom-0 z-0 h-64">
+                    <canvas id="myChart"></canvas>
+                </div>
+            </div>
+
+            <div class="flex flex-col gap-4">
+                <button class="flex flex-row gap-3 items-center h-16 px-6 outline-none transition focus:border-white/40 border-4 border-white/20 bg-white/20 rounded-full hover:drop-shadow-xl relative">
+                    <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M10 5H5V10C6.32608 10 7.59785 9.47322 8.53553 8.53553C9.47322 7.59785 10 6.32608 10 5ZM23.3333 5H20C20 8.97825 18.4196 12.7936 15.6066 15.6066C12.7936 18.4196 8.97825 20 5 20V23.3333C15.1333 23.3333 23.3333 15.1167 23.3333 5ZM16.6667 5H13.3333C13.3333 7.21014 12.4554 9.32975 10.8926 10.8926C9.32975 12.4554 7.21014 13.3333 5 13.3333V16.6667C8.09419 16.6667 11.0617 15.4375 13.2496 13.2496C15.4375 11.0617 16.6667 8.09419 16.6667 5M16.6667 35H20C20 31.0218 21.5804 27.2064 24.3934 24.3934C27.2064 21.5804 31.0218 20 35 20V16.6667C30.1377 16.6667 25.4745 18.5982 22.0364 22.0364C18.5982 25.4745 16.6667 30.1377 16.6667 35M30 35H35V30C33.6739 30 32.4021 30.5268 31.4645 31.4645C30.5268 32.4021 30 33.6739 30 35M23.3333 35H26.6667C26.6667 32.7899 27.5446 30.6702 29.1074 29.1074C30.6702 27.5446 32.7899 26.6667 35 26.6667V23.3333C31.9058 23.3333 28.9383 24.5625 26.7504 26.7504C24.5625 28.9383 23.3333 31.9058 23.3333 35V35Z" fill="white"/>
+                    </svg>
+                    <span class="text-lg font-md">Capteur 1</span>
+                    <svg width="24" height="24" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" class="mb-0.5">
+                        <path d="M14.6667 21.3333V10.6667H24V21.3333M26.6667 22.2267V20H29.3333V12H26.6667V9.77333C26.6667 9.30302 26.4798 8.85196 26.1473 8.5194C25.8147 8.18683 25.3637 8 24.8933 8L4.44001 8C3.46668 8 2.66668 8.8 2.66668 9.77333V22.2267C2.66668 22.697 2.85351 23.148 3.18607 23.4806C3.51864 23.8132 3.96969 24 4.44001 24H24.8933C25.8667 24 26.6667 23.2 26.6667 22.2267Z" fill="white" fill-opacity="0.75"/>
+                    </svg>
+
+                    <div class="absolute right-0">
+                        <svg width="32" height="32" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" class="mr-4">
+                            <path d="M25 26.6667L18.3333 33.3333H35V26.6667H25ZM20.1 11.9833L5 27.0833V33.3333H11.25L26.35 18.2333L20.1 11.9833ZM31.1833 13.4C31.8333 12.75 31.8333 11.6667 31.1833 11.05L27.2833 7.14999C26.9709 6.83997 26.5485 6.66602 26.1083 6.66602C25.6682 6.66602 25.2458 6.83997 24.9333 7.14999L21.8833 10.2L28.1333 16.45L31.1833 13.4Z" fill="white"/>
+                        </svg>
+                    </div>
+                </button>
+
+                <button class="flex flex-row gap-3 items-center h-16 px-6 outline-none transition focus:border-white/40 border-4 border-white/20 rounded-full hover:bg-white/10 hover:drop-shadow-xl relative">
+                    <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M10 5H5V10C6.32608 10 7.59785 9.47322 8.53553 8.53553C9.47322 7.59785 10 6.32608 10 5ZM23.3333 5H20C20 8.97825 18.4196 12.7936 15.6066 15.6066C12.7936 18.4196 8.97825 20 5 20V23.3333C15.1333 23.3333 23.3333 15.1167 23.3333 5ZM16.6667 5H13.3333C13.3333 7.21014 12.4554 9.32975 10.8926 10.8926C9.32975 12.4554 7.21014 13.3333 5 13.3333V16.6667C8.09419 16.6667 11.0617 15.4375 13.2496 13.2496C15.4375 11.0617 16.6667 8.09419 16.6667 5M16.6667 35H20C20 31.0218 21.5804 27.2064 24.3934 24.3934C27.2064 21.5804 31.0218 20 35 20V16.6667C30.1377 16.6667 25.4745 18.5982 22.0364 22.0364C18.5982 25.4745 16.6667 30.1377 16.6667 35M30 35H35V30C33.6739 30 32.4021 30.5268 31.4645 31.4645C30.5268 32.4021 30 33.6739 30 35M23.3333 35H26.6667C26.6667 32.7899 27.5446 30.6702 29.1074 29.1074C30.6702 27.5446 32.7899 26.6667 35 26.6667V23.3333C31.9058 23.3333 28.9383 24.5625 26.7504 26.7504C24.5625 28.9383 23.3333 31.9058 23.3333 35V35Z" fill="white"/>
+                    </svg>
+                    <span class="text-lg font-md">Capteur 2</span>
+                    <svg width="24" height="24" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" class="mb-0.5">
+                        <path d="M14.6667 21.3333V10.6667H24V21.3333M26.6667 22.2267V20H29.3333V12H26.6667V9.77333C26.6667 9.30302 26.4798 8.85196 26.1473 8.5194C25.8147 8.18683 25.3637 8 24.8933 8L4.44001 8C3.46668 8 2.66668 8.8 2.66668 9.77333V22.2267C2.66668 22.697 2.85351 23.148 3.18607 23.4806C3.51864 23.8132 3.96969 24 4.44001 24H24.8933C25.8667 24 26.6667 23.2 26.6667 22.2267Z" fill="white" fill-opacity="0.75"/>
+                    </svg>
+
+                    <div class="absolute right-0">
+                        <svg width="32" height="32" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" class="mr-4">
+                            <path d="M25 26.6667L18.3333 33.3333H35V26.6667H25ZM20.1 11.9833L5 27.0833V33.3333H11.25L26.35 18.2333L20.1 11.9833ZM31.1833 13.4C31.8333 12.75 31.8333 11.6667 31.1833 11.05L27.2833 7.14999C26.9709 6.83997 26.5485 6.66602 26.1083 6.66602C25.6682 6.66602 25.2458 6.83997 24.9333 7.14999L21.8833 10.2L28.1333 16.45L31.1833 13.4Z" fill="white"/>
+                        </svg>
+                    </div>
+                </button>
+
+                <button class="flex flex-row gap-3 items-center h-16 px-6 outline-none transition focus:border-white/40 border-4 border-white/20 rounded-full hover:bg-white/10 hover:drop-shadow-xl relative">
+                    <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M10 5H5V10C6.32608 10 7.59785 9.47322 8.53553 8.53553C9.47322 7.59785 10 6.32608 10 5ZM23.3333 5H20C20 8.97825 18.4196 12.7936 15.6066 15.6066C12.7936 18.4196 8.97825 20 5 20V23.3333C15.1333 23.3333 23.3333 15.1167 23.3333 5ZM16.6667 5H13.3333C13.3333 7.21014 12.4554 9.32975 10.8926 10.8926C9.32975 12.4554 7.21014 13.3333 5 13.3333V16.6667C8.09419 16.6667 11.0617 15.4375 13.2496 13.2496C15.4375 11.0617 16.6667 8.09419 16.6667 5M16.6667 35H20C20 31.0218 21.5804 27.2064 24.3934 24.3934C27.2064 21.5804 31.0218 20 35 20V16.6667C30.1377 16.6667 25.4745 18.5982 22.0364 22.0364C18.5982 25.4745 16.6667 30.1377 16.6667 35M30 35H35V30C33.6739 30 32.4021 30.5268 31.4645 31.4645C30.5268 32.4021 30 33.6739 30 35M23.3333 35H26.6667C26.6667 32.7899 27.5446 30.6702 29.1074 29.1074C30.6702 27.5446 32.7899 26.6667 35 26.6667V23.3333C31.9058 23.3333 28.9383 24.5625 26.7504 26.7504C24.5625 28.9383 23.3333 31.9058 23.3333 35V35Z" fill="white"/>
+                    </svg>
+                    <span class="text-lg font-md">Renamed</span>
+                    <svg width="24" height="24" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" class="mb-0.5">
+                        <path d="M14.6667 21.3333V10.6667H24V21.3333M26.6667 22.2267V20H29.3333V12H26.6667V9.77333C26.6667 9.30302 26.4798 8.85196 26.1473 8.5194C25.8147 8.18683 25.3637 8 24.8933 8L4.44001 8C3.46668 8 2.66668 8.8 2.66668 9.77333V22.2267C2.66668 22.697 2.85351 23.148 3.18607 23.4806C3.51864 23.8132 3.96969 24 4.44001 24H24.8933C25.8667 24 26.6667 23.2 26.6667 22.2267Z" fill="white" fill-opacity="0.75"/>
+                    </svg>
+
+                    <div class="absolute right-0">
+                        <svg width="32" height="32" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" class="mr-4">
+                            <path d="M25 26.6667L18.3333 33.3333H35V26.6667H25ZM20.1 11.9833L5 27.0833V33.3333H11.25L26.35 18.2333L20.1 11.9833ZM31.1833 13.4C31.8333 12.75 31.8333 11.6667 31.1833 11.05L27.2833 7.14999C26.9709 6.83997 26.5485 6.66602 26.1083 6.66602C25.6682 6.66602 25.2458 6.83997 24.9333 7.14999L21.8833 10.2L28.1333 16.45L31.1833 13.4Z" fill="white"/>
+                        </svg>
+                    </div>
+                </button>
+            </div>
+        </div>
+
+        <div class="rounded-3xl bg-white/20 -ml-6 -mr-6 md:ml-0 md:mr-0 md:w-full overflow-hidden">
+            <div class="px-6 py-4">
+                <b>Historique</b>
+            </div>
+            <table class="table-fixed w-full">
+                <thead class="bg-white/20">
+                <tr>
+                    <th class="items-center">
+                        <div class="flex justify-center p-2">
+                            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M16 26.6667C21.8666 26.6667 26.6666 21.8667 26.6666 16C26.6666 10.1333 21.8666 5.33334 16 5.33334C10.1333 5.33334 5.33329 10.1333 5.33329 16C5.33329 21.8667 10.1333 26.6667 16 26.6667ZM16 2.66667C23.3333 2.66667 29.3333 8.66667 29.3333 16C29.3333 23.3333 23.3333 29.3333 16 29.3333C8.66663 29.3333 2.66663 23.3333 2.66663 16C2.66663 8.66667 8.66663 2.66667 16 2.66667ZM16.6666 17.0667L10.2666 20.8L9.33329 18.9333L14.6666 15.8667V9.33334H16.6666V17.0667Z" fill="white"/>
+                            </svg>
+                        </div>
+                    </th>
+                    <th class="items-center">
+                        <div class="flex justify-center p-2">
+                            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M20 17.3333V6.66667C20 5.60581 19.5786 4.58839 18.8285 3.83824C18.0783 3.0881 17.0609 2.66667 16 2.66667C14.9392 2.66667 13.9218 3.0881 13.1716 3.83824C12.4215 4.58839 12 5.60581 12 6.66667V17.3333C10.8807 18.1729 10.0538 19.3433 9.63662 20.6789C9.21942 22.0145 9.23301 23.4474 9.67549 24.7749C10.118 26.1023 10.9669 27.2568 12.102 28.075C13.2371 28.8931 14.6008 29.3333 16 29.3333C17.3993 29.3333 18.763 28.8931 19.8981 28.075C21.0332 27.2568 21.8821 26.1023 22.3246 24.7749C22.7671 23.4474 22.7807 22.0145 22.3635 20.6789C21.9463 19.3433 21.1194 18.1729 20 17.3333M16 5.33334C16.3537 5.33334 16.6928 5.47381 16.9428 5.72386C17.1929 5.97391 17.3334 6.31305 17.3334 6.66667V10.6667H14.6667V6.66667C14.6667 6.31305 14.8072 5.97391 15.0572 5.72386C15.3073 5.47381 15.6464 5.33334 16 5.33334V5.33334Z" fill="white"/>
+                            </svg>
+                        </div>
+                    </th>
+                    <th class="items-center">
+                        <div class="flex justify-center p-2">
+                            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M29.1467 16.6667C28.1826 15.5313 26.8155 14.8143 25.3334 14.6667C25.3334 12.0667 24.4267 9.86666 22.6134 8.05333C20.8 6.23999 18.6 5.33333 16 5.33333C13.8934 5.33333 12 5.95999 10.3334 7.23999C8.66671 8.51999 7.56004 10.16 7.00004 12.2C5.33337 12.5733 3.94671 13.44 2.89337 14.8C1.84004 16.16 1.33337 17.7067 1.33337 19.44C1.33337 21.4533 2.05337 23.1733 3.48004 24.5733C4.92004 26 6.66671 26.6667 8.66671 26.6667H24.6667C26.3334 26.6667 27.7467 26.08 28.92 24.92C30.08 23.7467 30.6667 22.3333 30.6667 20.6667C30.6667 19.1333 30.16 17.8 29.1467 16.6667M12.6 12.04C13.64 12.04 14.4934 12.8933 14.4934 13.9333C14.4934 14.9733 13.64 15.8267 12.6 15.8267C11.56 15.8267 10.7067 14.9733 10.7067 13.9333C10.7067 12.8933 11.56 12.04 12.6 12.04ZM19.4 22.6267C18.36 22.6267 17.5067 21.7733 17.5067 20.7333C17.5067 19.6933 18.36 18.84 19.4 18.84C20.44 18.84 21.2934 19.6933 21.2934 20.7333C21.2934 21.7733 20.44 22.6267 19.4 22.6267ZM12.2667 22.6667L10.6667 21.0667L19.7334 12L21.3334 13.6L12.2667 22.6667Z" fill="white"/>
+                            </svg>
+                        </div>
+                    </th>
+                    <th class="items-center">
+                        <div class="flex justify-center p-2">
+                            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M16 28L20.8 21.6C19.4666 20.6 17.8 20 16 20C14.2 20 12.5333 20.6 11.2 21.6L16 28ZM16 4C10.6 4 5.61331 5.78667 1.59998 8.8L3.99998 12C7.33331 9.49333 11.4933 8 16 8C20.5066 8 24.6666 9.49333 28 12L30.4 8.8C26.3866 5.78667 21.4 4 16 4ZM16 12C12.4 12 9.07998 13.1867 6.39998 15.2L8.79997 18.4C10.8 16.8933 13.2933 16 16 16C18.7066 16 21.2 16.8933 23.2 18.4L25.6 15.2C22.92 13.1867 19.6 12 16 12Z" fill="white"/>
+                            </svg>
+                        </div>
+                    </th>
+                    <th class="items-center">
+                        <div class="flex justify-center p-2">
+                            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M21.3333 13.3333H10.6667V8H21.3333M22.2267 5.33334H20V2.66667H12V5.33334H9.77333C9.30302 5.33334 8.85196 5.52017 8.5194 5.85274C8.18683 6.1853 8 6.63635 8 7.10667V27.56C8 28.5333 8.8 29.3333 9.77333 29.3333H22.2267C22.697 29.3333 23.148 29.1465 23.4806 28.8139C23.8132 28.4814 24 28.0303 24 27.56V7.10667C24 6.13334 23.2 5.33334 22.2267 5.33334Z" fill="white"/>
+                            </svg>
+                        </div>
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td class="text-center py-2">
+                        <h4 class="text-xl font-bold leading-3 pt-2">10:47</h4>
+                        <small>13/12/2022</small>
+                    </td>
+                    <td class="text-center">
+                        <h3 class="md:text-3xl font-bold">18°C</h3>
+                    </td>
+                    <td class="text-center">
+                        <h3 class="md:text-3xl font-bold">20%</h3>
+                    </td>
+                    <td class="text-center">
+                        <h3 class="md:text-3xl font-bold">-65dB</h3>
+                    </td>
+                    <td class="text-center">
+                        <h3 class="md:text-3xl font-bold">69%</h3>
+                    </td>
+                </tr>
+                <tr class="bg-white/10">
+                    <td class="text-center py-2">
+                        <h4 class="text-xl font-bold leading-3 pt-2">10:46</h4>
+                        <small>13/12/2022</small>
+                    </td>
+                    <td class="text-center">
+                        <h3 class="md:text-3xl font-bold">20°C</h3>
+                    </td>
+                    <td class="text-center">
+                        <h3 class="md:text-3xl font-bold">19%</h3>
+                    </td>
+                    <td class="text-center">
+                        <h3 class="md:text-3xl font-bold">-69dB</h3>
+                    </td>
+                    <td class="text-center">
+                        <h3 class="md:text-3xl font-bold">69%</h3>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="text-center py-2">
+                        <h4 class="text-xl font-bold leading-3 pt-2">10:45</h4>
+                        <small>13/12/2022</small>
+                    </td>
+                    <td class="text-center">
+                        <h3 class="md:text-3xl font-bold">19°C</h3>
+                    </td>
+                    <td class="text-center">
+                        <h3 class="md:text-3xl font-bold">19%</h3>
+                    </td>
+                    <td class="text-center">
+                        <h3 class="md:text-3xl font-bold">-63dB</h3>
+                    </td>
+                    <td class="text-center">
+                        <h3 class="md:text-3xl font-bold">70%</h3>
+                    </td>
+                </tr>
+                <tr class="bg-white/10">
+                    <td class="text-center py-2">
+                        <h4 class="text-xl font-bold leading-3 pt-2">10:44</h4>
+                        <small>13/12/2022</small>
+                    </td>
+                    <td class="text-center">
+                        <h3 class="md:text-3xl font-bold">18°C</h3>
+                    </td>
+                    <td class="text-center">
+                        <h3 class="md:text-3xl font-bold">20%</h3>
+                    </td>
+                    <td class="text-center">
+                        <h3 class="md:text-3xl font-bold">-70dB</h3>
+                    </td>
+                    <td class="text-center">
+                        <h3 class="md:text-3xl font-bold">70%</h3>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="text-center py-2">
+                        <h4 class="text-xl font-bold leading-3 pt-2">10:43</h4>
+                        <small>13/12/2022</small>
+                    </td>
+                    <td class="text-center">
+                        <h3 class="md:text-3xl font-bold">19°C</h3>
+                    </td>
+                    <td class="text-center">
+                        <h3 class="md:text-3xl font-bold">21%</h3>
+                    </td>
+                    <td class="text-center">
+                        <h3 class="md:text-3xl font-bold">-64dB</h3>
+                    </td>
+                    <td class="text-center">
+                        <h3 class="md:text-3xl font-bold">70%</h3>
+                    </td>
+                </tr>
+                <tr class="bg-white/10">
+                    <td class="text-center py-2">
+                        <h4 class="text-xl font-bold leading-3 pt-2">10:42</h4>
+                        <small>13/12/2022</small>
+                    </td>
+                    <td class="text-center">
+                        <h3 class="md:text-3xl font-bold">17°C</h3>
+                    </td>
+                    <td class="text-center">
+                        <h3 class="md:text-3xl font-bold">21%</h3>
+                    </td>
+                    <td class="text-center">
+                        <h3 class="md:text-3xl font-bold">-66dB</h3>
+                    </td>
+                    <td class="text-center">
+                        <h3 class="md:text-3xl font-bold">71%</h3>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+      const ctx = document.getElementById('myChart');
+      const DATA_COUNT = 7;
+      const labels = [];
+      for (let i = 0; i < DATA_COUNT; ++i) {
+        labels.push(i.toString());
+      }
+      const datapoints = [178, 175, 193, 183, 201, 198, 182];
+      const datapointstwo = [168, 167, 167, 164, 162, 162, 164];
+
+      const data = {
+        labels: labels,
+        datasets: [
+          {
+            label: 'Humidity',
+            backgroundColor: 'rgba(0, 87, 150, 0.3)',
+            data: datapointstwo,
+            borderColor: "#005796",
+            fill: true,
+            tension: 0.45,
+            pointRadius: 0
+          },
+          {
+            label: 'Temperature',
+            backgroundColor: 'rgba(255, 255, 255, 0.3)',
+            data: datapoints,
+            borderColor: "#FFFFFF",
+            fill: true,
+            tension: 0.45,
+            pointRadius: 0
+          }
+        ]
+      }
+
+      new Chart(ctx, {
+        type: 'line',
+        data: data,
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false
+            },
+            title: {
+              display: false
+            }
+          },
+          scales: {
+            x: {
+              display: false
+            },
+            y: {
+              display: false,
+              min: 155,
+              max: 205 // HIGHEST ELEMENT PLUS AT LEAST TWO
+            }
+          }
+        },
+      });
+    </script>
+</body>
+</html>
