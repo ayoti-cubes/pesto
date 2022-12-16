@@ -8,10 +8,10 @@ import sqlite3
 sqlcon = sqlite3.connect("database/sensors.db")
 cur = sqlcon.cursor()
 cur.executescript("""
-CREATE TABLE IF NOT EXISTS receivers (id INTEGER PRIMARY KEY, imei INT, marque_receiver TEXT);
 CREATE TABLE IF NOT EXISTS capteurs (id INTEGER PRIMARY KEY, tag_info TEXT, nom TEXT);
 CREATE TABLE IF NOT EXISTS releves
 	(id INTEGER PRIMARY KEY AUTOINCREMENT,
+	 id_capteur TEXT,
      humidite REAL,
      temperature REAL,
      heure TEXT,
@@ -29,6 +29,7 @@ CREATE TABLE IF NOT EXISTS users
       droits TEXT
     );
 """)
+sqlcon.commit()
 
 app = Flask(__name__, static_folder='static', static_url_path='')
 api = Api(app)
@@ -74,10 +75,20 @@ class RemoteSensor(Resource):
                 "isneg": isneg
             }
             if element == "62182233":
-                humid = int(str((dico[position + 18:position + 20]), 16))
+                humid = int(str((dico[position + 18:position + 20])), 16)
                 capteursObj[element]["humid"] = humid
 
         return capteursObj
+
+def saveSensorData():
+    remoteSensor = RemoteSensor()
+    newSensorData = remoteSensor.get()
+    for sensorId, sensorData in newSensorData.items():
+        cur2 = sqlcon.cursor()
+        cur2.execute("INSERT INTO releves (id_capteur, temperature, heure, date, rssi, batterie) VALUES (?, ?, CURRENT_TIME, CURRENT_DATE, ?, 69)", (sensorId, sensorData["temp"], sensorData["rssi"]))
+        sqlcon.commit()
+
+saveSensorData()
 
 api.add_resource(HelloWorld, '/api/hello')
 api.add_resource(RemoteSensor, '/api/remotesensor')
