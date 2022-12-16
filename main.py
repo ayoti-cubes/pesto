@@ -46,24 +46,29 @@ class RemoteSensor(Resource):
         dico = str(response.json())
         capteurs = ["06182660", "62182233", "06190484"]
         capteursObj = {}
+
         for element in capteurs:
             position = dico.find(element)
             temp = str((dico[position + 14:position + 18]))
-            rssi = str((dico[position + 20:position + 22]))
-            convertion_temp = int(temp, 16) / 10
-            convertion_rssi = int(rssi, 16)
-            isanormal = (convertion_temp - 32768) > 0
-            isneg = (convertion_temp - 16384) > 0
+            isanormal = (int(temp, 16) - 32768) > 0
+            isneg = (int(temp, 16) - 16384) > 0
+
+            if isneg:
+                 temp = - (int(temp, 16) - 16384) / 10
+            else:
+                 temp = int(temp, 16) / 10
+
+            rssi = - int(str((dico[position + 20:position + 22])), 16)
+
             capteursObj[element] = {
-                "temp": convertion_temp,
-                "rssi": convertion_rssi,
+                "temp": temp,
+                "rssi": rssi,
                 "isanormal": isanormal,
                 "isneg": isneg
             }
             if element == "62182233":
-                humid = str((dico[position + 18:position + 20]))
-                convertion_humid = int(humid, 16)
-                capteursObj[element]["humid"] = convertion_humid
+                humid = int(str((dico[position + 18:position + 20]), 16))
+                capteursObj[element]["humid"] = humid
 
         return capteursObj
 
