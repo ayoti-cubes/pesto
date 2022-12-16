@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_restful import Resource, Api
 import requests
+import datetime
 
 import sqlite3
 
@@ -49,6 +50,8 @@ class RemoteSensor(Resource):
 
         for element in capteurs:
             position = dico.find(element)
+            date = datetime.datetime.now().strftime("%d-%m-%Y, %H:%M:%S")
+
             temp = str((dico[position + 14:position + 18]))
             isanormal = (int(temp, 16) - 32768) > 0
             isneg = (int(temp, 16) - 16384) > 0
@@ -60,9 +63,13 @@ class RemoteSensor(Resource):
 
             rssi = - int(str((dico[position + 20:position + 22])), 16)
 
+            batterie = round((int((dico[position + 10:position + 14]), 16) / 3670) * 100, 0)
+
             capteursObj[element] = {
                 "temp": temp,
                 "rssi": rssi,
+                "batterie": batterie,
+                "date": date,
                 "isanormal": isanormal,
                 "isneg": isneg
             }
