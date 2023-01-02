@@ -51,7 +51,8 @@ class RemoteSensor(Resource):
 
         for element in capteurs:
             position = dico.find(element)
-            date = datetime.datetime.now().strftime("%d-%m-%Y, %H:%M:%S")
+            date = datetime.datetime.now().strftime("%Y-%m-%d")
+            time = datetime.datetime.now().strftime("%H:%M:%S")
 
             temp = str((dico[position + 14:position + 18]))
             isanormal = (int(temp, 16) - 32768) > 0
@@ -71,8 +72,10 @@ class RemoteSensor(Resource):
                 "rssi": rssi,
                 "batterie": batterie,
                 "date": date,
+                "time": time,
                 "isanormal": isanormal,
-                "isneg": isneg
+                "isneg": isneg,
+                "batterie": batterie
             }
             if element == "62182233":
                 humid = int(str((dico[position + 18:position + 20])), 16)
@@ -85,7 +88,7 @@ def saveSensorData():
     newSensorData = remoteSensor.get()
     for sensorId, sensorData in newSensorData.items():
         cur2 = sqlcon.cursor()
-        cur2.execute("INSERT INTO releves (id_capteur, temperature, heure, date, rssi, batterie) VALUES (?, ?, CURRENT_TIME, CURRENT_DATE, ?, 69)", (sensorId, sensorData["temp"], sensorData["rssi"]))
+        cur2.execute("INSERT INTO releves (id_capteur, humidite, temperature, heure, date, rssi, batterie) VALUES (?, ?, ?, ?, ?, ?, ?)", (sensorId, sensorData.get("humid", None), sensorData["temp"], sensorData["time"], sensorData["date"], sensorData["rssi"], sensorData["batterie"]))
         sqlcon.commit()
 
 saveSensorData()
