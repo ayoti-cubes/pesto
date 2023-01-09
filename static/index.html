@@ -34,9 +34,13 @@
         <div class="flex flex-col gap-6 md:gap-12 w-full">
             <div class="h-96 rounded-3xl bg-white/20 w-full relative overflow-hidden">
                 <div class="flex flex-col p-8 z-20">
-                    <h1 id="maintemp" class="text-7xl font-bold drop-shadow-lg">Chargement...</h1>
-                    <span class="drop-shadow-lg tracking-wider">Humidité : <b id="mainhumid">Chargement...</b></span>
-                    <span class="drop-shadow-lg tracking-wider">Batterie : <b id="mainbatt">Chargement...</b></span>
+                    <h1 x-text="history[selectedSensor][0].temp + '°C' || 'Chargement...'" class="text-7xl font-bold drop-shadow-lg"></h1>
+                    <span class="drop-shadow-lg tracking-wider">
+                        Batterie : <b x-text="history[selectedSensor][0].batterie + ' %'">Chargement...</b>
+                    </span>
+                    <span x-show="history[selectedSensor][0].humid" class="drop-shadow-lg tracking-wider">
+                        Humidité : <b x-text="history[selectedSensor][0].humid + ' %'">Chargement...</b>
+                    </span>
                 </div>
 
                 <div class="absolute left-0 right-0 bottom-0 z-0 h-64">
@@ -121,7 +125,7 @@
                             <small x-text="sensorData.date"></small>
                         </td>
                         <td class="text-center">
-                            <h3 class="md:text-3xl font-bold"><span x-text="sensorData.temp"></span> °C</h3>
+                            <h3 x-text="sensorData.temp + ' °C'" class="md:text-3xl font-bold"></h3>
                         </td>
                         <td class="text-center">
                             <h3 class="md:text-3xl font-bold">
@@ -130,10 +134,10 @@
                             </h3>
                         </td>
                         <td class="text-center">
-                            <h3 class="md:text-3xl font-bold"><span x-text="sensorData.rssi"></span>dB</h3>
+                            <h3 x-text="sensorData.rssi + 'dB'" class="md:text-3xl font-bold"></h3>
                         </td>
                         <td class="text-center">
-                            <h3 class="md:text-3xl font-bold"><span x-text="sensorData.batterie"></span>%</h3>
+                            <h3 x-text="sensorData.batterie + ' %'" class="md:text-3xl font-bold"></h3>
                         </td>
                     </tr>
                 </template>
@@ -217,28 +221,9 @@
           },
 
           history: null,
-          selectedSensor: {
-            "null": {
-              "id": "null"
-            }
-          }
+          selectedSensor: null
         }
       }
-
-      fetch('/api/currentsensor')
-        .then((response) => response.json())
-        .then((data) => {
-          let sensor = Object.entries(data)[2][1];
-
-          document.getElementById('maintemp').innerText = `${sensor.temp} °C`;
-          document.getElementById('mainbatt').innerText = `${sensor.batterie}%`;
-
-          if (sensor.humid !== undefined) {
-            document.getElementById('mainhumid').innerText = `${sensor.humid}%`;
-          } else {
-            document.getElementById('mainhumid').parentElement.classList.add('hidden')
-          }
-        });
     </script>
 
     <script src="//unpkg.com/alpinejs" defer></script>
