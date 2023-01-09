@@ -2,6 +2,7 @@ from flask import Flask
 from flask_restful import Resource, Api
 import requests
 import datetime
+from apscheduler.schedulers.background import BackgroundScheduler
 
 import sqlite3
 
@@ -70,7 +71,6 @@ class RemoteSensor(Resource):
             capteursObj[element] = {
                 "temp": temp,
                 "rssi": rssi,
-                "batterie": batterie,
                 "date": date,
                 "time": time,
                 "isanormal": isanormal,
@@ -91,7 +91,9 @@ def saveSensorData():
         cur2.execute("INSERT INTO releves (id_capteur, humidite, temperature, heure, date, rssi, batterie) VALUES (?, ?, ?, ?, ?, ?, ?)", (sensorId, sensorData.get("humid", None), sensorData["temp"], sensorData["time"], sensorData["date"], sensorData["rssi"], sensorData["batterie"]))
         sqlcon.commit()
 
-saveSensorData()
+scheduler = BackgroundScheduler()
+job = scheduler.add_job(saveSensorData, 'interval', minutes=5)
+scheduler.start()
 
 api.add_resource(HelloWorld, '/api/hello')
 api.add_resource(RemoteSensor, '/api/currentsensor')
