@@ -91,7 +91,7 @@ def saveSensorData():
         cur2.execute("INSERT INTO releves (id_capteur, humidite, temperature, heure, date, rssi, batterie) VALUES (?, ?, ?, ?, ?, ?, ?)", (sensorId, sensorData.get("humid", None), sensorData["temp"], sensorData["time"], sensorData["date"], sensorData["rssi"], sensorData["batterie"]))
         sqlcon.commit()
 
-scheduler = BackgroundScheduler()
+scheduler = BackgroundScheduler() #run saveSensorData every 5 minutes
 job = scheduler.add_job(saveSensorData, 'interval', minutes=5)
 scheduler.start()
 
