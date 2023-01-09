@@ -6,10 +6,10 @@ from apscheduler.schedulers.background import BackgroundScheduler
 
 import sqlite3
 
-sqlcon = sqlite3.connect("database/sensors.db")
+sqlcon = sqlite3.connect("database/sensors.db", check_same_thread=False)
 cur = sqlcon.cursor()
 cur.executescript("""
-CREATE TABLE IF NOT EXISTS capteurs (id INTEGER PRIMARY KEY, tag_info TEXT, nom TEXT);
+CREATE TABLE IF NOT EXISTS capteurs (id INTEGER PRIMARY KEY, nom TEXT);
 CREATE TABLE IF NOT EXISTS releves
 	(id INTEGER PRIMARY KEY AUTOINCREMENT,
 	 id_capteur TEXT,
@@ -95,8 +95,32 @@ scheduler = BackgroundScheduler()
 job = scheduler.add_job(saveSensorData, 'interval', minutes=5)
 scheduler.start()
 
+class SensorHistory(Resource):
+    def get(self):
+        cur3 = sqlcon.cursor()
+        cur3.execute("SELECT * FROM releves ORDER BY date DESC, heure DESC")
+        history = cur3.fetchall()
+
+        outHistory = {}
+
+        for item in history:
+            if item[1] not in outHistory.keys():
+                outHistory[item[1]] = []
+
+            if len(outHistory[item[1]]) < 10:
+                outHistory[item[1]].append({
+                    "temp": item[3],
+                    "rssi": item[6],
+                    "date": item[5],
+                    "time": item[4],
+                    "batterie": item[7]
+                })
+
+        return outHistory
+
 api.add_resource(HelloWorld, '/api/hello')
 api.add_resource(RemoteSensor, '/api/currentsensor')
+api.add_resource(SensorHistory, '/api/history')
 
 if __name__ == '__main__':
     app.run(debug=True, host="0.0.0.0")
