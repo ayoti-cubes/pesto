@@ -35,8 +35,8 @@
             <div class="h-96 rounded-3xl bg-white/20 w-full relative overflow-hidden">
                 <div class="flex flex-col p-8 z-20">
                     <h1 id="maintemp" class="text-7xl font-bold drop-shadow-lg">Chargement...</h1>
-                    <span class="drop-shadow-lg tracking-wider">Humidité : <b>20%</b></span>
-                    <span class="drop-shadow-lg tracking-wider">Batterie : <b>69%</b></span>
+                    <span class="drop-shadow-lg tracking-wider">Humidité : <b id="mainhumid">20%</b></span>
+                    <span class="drop-shadow-lg tracking-wider">Batterie : <b id="mainbatt">69%</b></span>
                 </div>
 
                 <div class="absolute left-0 right-0 bottom-0 z-0 h-64">
@@ -318,9 +318,16 @@
       fetch('/api/currentsensor')
       .then((response) => response.json())
         .then((data) => {
-            console.log(data)
-            document.getElementById('maintemp').innerText = `${Object.entries(data)[2][1].temp} °C`
+            let sensor = Object.entries(data)[2][1];
 
+              document.getElementById('maintemp').innerText = `${sensor.temp} °C`;
+              document.getElementById('mainbatt').innerText = `${sensor.batterie}%`;
+
+            if (sensor.humid !== undefined) {
+              document.getElementById('mainhumid').innerText = `${sensor.humid}%`;
+            } else {
+              document.getElementById('mainhumid').parentElement.classList.add('hidden')
+            }
         });
     </script>
 </body>
