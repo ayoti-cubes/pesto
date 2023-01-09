@@ -30,7 +30,7 @@
         <img src="https://thispersondoesnotexist.com/image" class="h-16 w-16 rounded-full">
     </div>
 
-    <div class="flex flex-col md:flex-row gap-12 container mx-auto md:px-6 md:pb-16 h-full">
+    <div x-data="appXData()" class="flex flex-col md:flex-row gap-12 container mx-auto md:px-6 md:pb-16 h-full">
         <div class="flex flex-col gap-6 md:gap-12 w-full">
             <div class="h-96 rounded-3xl bg-white/20 w-full relative overflow-hidden">
                 <div class="flex flex-col p-8 z-20">
@@ -45,53 +45,27 @@
             </div>
 
             <div class="flex flex-col gap-4">
-                <button class="flex flex-row gap-3 items-center h-16 px-6 outline-none transition focus:border-white/40 border-4 border-white/20 bg-white/20 rounded-full hover:drop-shadow-xl relative">
-                    <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M10 5H5V10C6.32608 10 7.59785 9.47322 8.53553 8.53553C9.47322 7.59785 10 6.32608 10 5ZM23.3333 5H20C20 8.97825 18.4196 12.7936 15.6066 15.6066C12.7936 18.4196 8.97825 20 5 20V23.3333C15.1333 23.3333 23.3333 15.1167 23.3333 5ZM16.6667 5H13.3333C13.3333 7.21014 12.4554 9.32975 10.8926 10.8926C9.32975 12.4554 7.21014 13.3333 5 13.3333V16.6667C8.09419 16.6667 11.0617 15.4375 13.2496 13.2496C15.4375 11.0617 16.6667 8.09419 16.6667 5M16.6667 35H20C20 31.0218 21.5804 27.2064 24.3934 24.3934C27.2064 21.5804 31.0218 20 35 20V16.6667C30.1377 16.6667 25.4745 18.5982 22.0364 22.0364C18.5982 25.4745 16.6667 30.1377 16.6667 35M30 35H35V30C33.6739 30 32.4021 30.5268 31.4645 31.4645C30.5268 32.4021 30 33.6739 30 35M23.3333 35H26.6667C26.6667 32.7899 27.5446 30.6702 29.1074 29.1074C30.6702 27.5446 32.7899 26.6667 35 26.6667V23.3333C31.9058 23.3333 28.9383 24.5625 26.7504 26.7504C24.5625 28.9383 23.3333 31.9058 23.3333 35V35Z" fill="white"/>
-                    </svg>
-                    <span class="text-lg font-md">Capteur 1</span>
-                    <svg width="24" height="24" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" class="mb-0.5">
-                        <path d="M14.6667 21.3333V10.6667H24V21.3333M26.6667 22.2267V20H29.3333V12H26.6667V9.77333C26.6667 9.30302 26.4798 8.85196 26.1473 8.5194C25.8147 8.18683 25.3637 8 24.8933 8L4.44001 8C3.46668 8 2.66668 8.8 2.66668 9.77333V22.2267C2.66668 22.697 2.85351 23.148 3.18607 23.4806C3.51864 23.8132 3.96969 24 4.44001 24H24.8933C25.8667 24 26.6667 23.2 26.6667 22.2267Z" fill="white" fill-opacity="0.75"/>
-                    </svg>
-
-                    <div class="absolute right-0">
-                        <svg width="32" height="32" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" class="mr-4">
-                            <path d="M25 26.6667L18.3333 33.3333H35V26.6667H25ZM20.1 11.9833L5 27.0833V33.3333H11.25L26.35 18.2333L20.1 11.9833ZM31.1833 13.4C31.8333 12.75 31.8333 11.6667 31.1833 11.05L27.2833 7.14999C26.9709 6.83997 26.5485 6.66602 26.1083 6.66602C25.6682 6.66602 25.2458 6.83997 24.9333 7.14999L21.8833 10.2L28.1333 16.45L31.1833 13.4Z" fill="white"/>
+                <template x-for="sensor in Object.keys(history)">
+                    <button
+                      class="flex flex-row gap-3 items-center h-16 px-6 outline-none transition focus:border-white/40 border-4 border-white/20 rounded-full hover:bg-white/10 hover:drop-shadow-xl relative"
+                      :class="{ 'bg-white/20 hover:bg-white/20': selectedSensor == sensor }"
+                      @click="selectedSensor = sensor"
+                    >
+                        <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M10 5H5V10C6.32608 10 7.59785 9.47322 8.53553 8.53553C9.47322 7.59785 10 6.32608 10 5ZM23.3333 5H20C20 8.97825 18.4196 12.7936 15.6066 15.6066C12.7936 18.4196 8.97825 20 5 20V23.3333C15.1333 23.3333 23.3333 15.1167 23.3333 5ZM16.6667 5H13.3333C13.3333 7.21014 12.4554 9.32975 10.8926 10.8926C9.32975 12.4554 7.21014 13.3333 5 13.3333V16.6667C8.09419 16.6667 11.0617 15.4375 13.2496 13.2496C15.4375 11.0617 16.6667 8.09419 16.6667 5M16.6667 35H20C20 31.0218 21.5804 27.2064 24.3934 24.3934C27.2064 21.5804 31.0218 20 35 20V16.6667C30.1377 16.6667 25.4745 18.5982 22.0364 22.0364C18.5982 25.4745 16.6667 30.1377 16.6667 35M30 35H35V30C33.6739 30 32.4021 30.5268 31.4645 31.4645C30.5268 32.4021 30 33.6739 30 35M23.3333 35H26.6667C26.6667 32.7899 27.5446 30.6702 29.1074 29.1074C30.6702 27.5446 32.7899 26.6667 35 26.6667V23.3333C31.9058 23.3333 28.9383 24.5625 26.7504 26.7504C24.5625 28.9383 23.3333 31.9058 23.3333 35V35Z" fill="white"/>
                         </svg>
-                    </div>
-                </button>
-
-                <button class="flex flex-row gap-3 items-center h-16 px-6 outline-none transition focus:border-white/40 border-4 border-white/20 rounded-full hover:bg-white/10 hover:drop-shadow-xl relative">
-                    <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M10 5H5V10C6.32608 10 7.59785 9.47322 8.53553 8.53553C9.47322 7.59785 10 6.32608 10 5ZM23.3333 5H20C20 8.97825 18.4196 12.7936 15.6066 15.6066C12.7936 18.4196 8.97825 20 5 20V23.3333C15.1333 23.3333 23.3333 15.1167 23.3333 5ZM16.6667 5H13.3333C13.3333 7.21014 12.4554 9.32975 10.8926 10.8926C9.32975 12.4554 7.21014 13.3333 5 13.3333V16.6667C8.09419 16.6667 11.0617 15.4375 13.2496 13.2496C15.4375 11.0617 16.6667 8.09419 16.6667 5M16.6667 35H20C20 31.0218 21.5804 27.2064 24.3934 24.3934C27.2064 21.5804 31.0218 20 35 20V16.6667C30.1377 16.6667 25.4745 18.5982 22.0364 22.0364C18.5982 25.4745 16.6667 30.1377 16.6667 35M30 35H35V30C33.6739 30 32.4021 30.5268 31.4645 31.4645C30.5268 32.4021 30 33.6739 30 35M23.3333 35H26.6667C26.6667 32.7899 27.5446 30.6702 29.1074 29.1074C30.6702 27.5446 32.7899 26.6667 35 26.6667V23.3333C31.9058 23.3333 28.9383 24.5625 26.7504 26.7504C24.5625 28.9383 23.3333 31.9058 23.3333 35V35Z" fill="white"/>
-                    </svg>
-                    <span class="text-lg font-md">Capteur 2</span>
-                    <svg width="24" height="24" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" class="mb-0.5">
-                        <path d="M14.6667 21.3333V10.6667H24V21.3333M26.6667 22.2267V20H29.3333V12H26.6667V9.77333C26.6667 9.30302 26.4798 8.85196 26.1473 8.5194C25.8147 8.18683 25.3637 8 24.8933 8L4.44001 8C3.46668 8 2.66668 8.8 2.66668 9.77333V22.2267C2.66668 22.697 2.85351 23.148 3.18607 23.4806C3.51864 23.8132 3.96969 24 4.44001 24H24.8933C25.8667 24 26.6667 23.2 26.6667 22.2267Z" fill="white" fill-opacity="0.75"/>
-                    </svg>
-
-                    <div class="absolute right-0">
-                        <svg width="32" height="32" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" class="mr-4">
-                            <path d="M25 26.6667L18.3333 33.3333H35V26.6667H25ZM20.1 11.9833L5 27.0833V33.3333H11.25L26.35 18.2333L20.1 11.9833ZM31.1833 13.4C31.8333 12.75 31.8333 11.6667 31.1833 11.05L27.2833 7.14999C26.9709 6.83997 26.5485 6.66602 26.1083 6.66602C25.6682 6.66602 25.2458 6.83997 24.9333 7.14999L21.8833 10.2L28.1333 16.45L31.1833 13.4Z" fill="white"/>
+                        <span x-text="sensor" class="text-lg font-md"></span>
+                        <svg width="24" height="24" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" class="mb-0.5">
+                            <path d="M14.6667 21.3333V10.6667H24V21.3333M26.6667 22.2267V20H29.3333V12H26.6667V9.77333C26.6667 9.30302 26.4798 8.85196 26.1473 8.5194C25.8147 8.18683 25.3637 8 24.8933 8L4.44001 8C3.46668 8 2.66668 8.8 2.66668 9.77333V22.2267C2.66668 22.697 2.85351 23.148 3.18607 23.4806C3.51864 23.8132 3.96969 24 4.44001 24H24.8933C25.8667 24 26.6667 23.2 26.6667 22.2267Z" fill="white" fill-opacity="0.75"/>
                         </svg>
-                    </div>
-                </button>
 
-                <button class="flex flex-row gap-3 items-center h-16 px-6 outline-none transition focus:border-white/40 border-4 border-white/20 rounded-full hover:bg-white/10 hover:drop-shadow-xl relative">
-                    <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M10 5H5V10C6.32608 10 7.59785 9.47322 8.53553 8.53553C9.47322 7.59785 10 6.32608 10 5ZM23.3333 5H20C20 8.97825 18.4196 12.7936 15.6066 15.6066C12.7936 18.4196 8.97825 20 5 20V23.3333C15.1333 23.3333 23.3333 15.1167 23.3333 5ZM16.6667 5H13.3333C13.3333 7.21014 12.4554 9.32975 10.8926 10.8926C9.32975 12.4554 7.21014 13.3333 5 13.3333V16.6667C8.09419 16.6667 11.0617 15.4375 13.2496 13.2496C15.4375 11.0617 16.6667 8.09419 16.6667 5M16.6667 35H20C20 31.0218 21.5804 27.2064 24.3934 24.3934C27.2064 21.5804 31.0218 20 35 20V16.6667C30.1377 16.6667 25.4745 18.5982 22.0364 22.0364C18.5982 25.4745 16.6667 30.1377 16.6667 35M30 35H35V30C33.6739 30 32.4021 30.5268 31.4645 31.4645C30.5268 32.4021 30 33.6739 30 35M23.3333 35H26.6667C26.6667 32.7899 27.5446 30.6702 29.1074 29.1074C30.6702 27.5446 32.7899 26.6667 35 26.6667V23.3333C31.9058 23.3333 28.9383 24.5625 26.7504 26.7504C24.5625 28.9383 23.3333 31.9058 23.3333 35V35Z" fill="white"/>
-                    </svg>
-                    <span class="text-lg font-md">Capteur 3</span>
-                    <svg width="24" height="24" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" class="mb-0.5">
-                        <path d="M14.6667 21.3333V10.6667H24V21.3333M26.6667 22.2267V20H29.3333V12H26.6667V9.77333C26.6667 9.30302 26.4798 8.85196 26.1473 8.5194C25.8147 8.18683 25.3637 8 24.8933 8L4.44001 8C3.46668 8 2.66668 8.8 2.66668 9.77333V22.2267C2.66668 22.697 2.85351 23.148 3.18607 23.4806C3.51864 23.8132 3.96969 24 4.44001 24H24.8933C25.8667 24 26.6667 23.2 26.6667 22.2267Z" fill="white" fill-opacity="0.75"/>
-                    </svg>
-
-                    <div class="absolute right-0">
-                        <svg width="32" height="32" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" class="mr-4">
-                            <path d="M25 26.6667L18.3333 33.3333H35V26.6667H25ZM20.1 11.9833L5 27.0833V33.3333H11.25L26.35 18.2333L20.1 11.9833ZM31.1833 13.4C31.8333 12.75 31.8333 11.6667 31.1833 11.05L27.2833 7.14999C26.9709 6.83997 26.5485 6.66602 26.1083 6.66602C25.6682 6.66602 25.2458 6.83997 24.9333 7.14999L21.8833 10.2L28.1333 16.45L31.1833 13.4Z" fill="white"/>
-                        </svg>
-                    </div>
-                </button>
+                        <div class="absolute right-0">
+                            <svg width="32" height="32" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" class="mr-4">
+                                <path d="M25 26.6667L18.3333 33.3333H35V26.6667H25ZM20.1 11.9833L5 27.0833V33.3333H11.25L26.35 18.2333L20.1 11.9833ZM31.1833 13.4C31.8333 12.75 31.8333 11.6667 31.1833 11.05L27.2833 7.14999C26.9709 6.83997 26.5485 6.66602 26.1083 6.66602C25.6682 6.66602 25.2458 6.83997 24.9333 7.14999L21.8833 10.2L28.1333 16.45L31.1833 13.4Z" fill="white"/>
+                            </svg>
+                        </div>
+                    </button>
+                </template>
             </div>
         </div>
 
@@ -140,120 +114,36 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr>
-                    <td class="text-center py-2">
-                        <h4 class="text-xl font-bold leading-3 pt-2">10:47</h4>
-                        <small>13/12/2022</small>
-                    </td>
-                    <td class="text-center">
-                        <h3 class="md:text-3xl font-bold">18°C</h3>
-                    </td>
-                    <td class="text-center">
-                        <h3 class="md:text-3xl font-bold">20%</h3>
-                    </td>
-                    <td class="text-center">
-                        <h3 class="md:text-3xl font-bold">-65dB</h3>
-                    </td>
-                    <td class="text-center">
-                        <h3 class="md:text-3xl font-bold">69%</h3>
-                    </td>
-                </tr>
-                <tr class="bg-white/10">
-                    <td class="text-center py-2">
-                        <h4 class="text-xl font-bold leading-3 pt-2">10:46</h4>
-                        <small>13/12/2022</small>
-                    </td>
-                    <td class="text-center">
-                        <h3 class="md:text-3xl font-bold">20°C</h3>
-                    </td>
-                    <td class="text-center">
-                        <h3 class="md:text-3xl font-bold">19%</h3>
-                    </td>
-                    <td class="text-center">
-                        <h3 class="md:text-3xl font-bold">-69dB</h3>
-                    </td>
-                    <td class="text-center">
-                        <h3 class="md:text-3xl font-bold">69%</h3>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="text-center py-2">
-                        <h4 class="text-xl font-bold leading-3 pt-2">10:45</h4>
-                        <small>13/12/2022</small>
-                    </td>
-                    <td class="text-center">
-                        <h3 class="md:text-3xl font-bold">19°C</h3>
-                    </td>
-                    <td class="text-center">
-                        <h3 class="md:text-3xl font-bold">19%</h3>
-                    </td>
-                    <td class="text-center">
-                        <h3 class="md:text-3xl font-bold">-63dB</h3>
-                    </td>
-                    <td class="text-center">
-                        <h3 class="md:text-3xl font-bold">70%</h3>
-                    </td>
-                </tr>
-                <tr class="bg-white/10">
-                    <td class="text-center py-2">
-                        <h4 class="text-xl font-bold leading-3 pt-2">10:44</h4>
-                        <small>13/12/2022</small>
-                    </td>
-                    <td class="text-center">
-                        <h3 class="md:text-3xl font-bold">18°C</h3>
-                    </td>
-                    <td class="text-center">
-                        <h3 class="md:text-3xl font-bold">20%</h3>
-                    </td>
-                    <td class="text-center">
-                        <h3 class="md:text-3xl font-bold">-70dB</h3>
-                    </td>
-                    <td class="text-center">
-                        <h3 class="md:text-3xl font-bold">70%</h3>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="text-center py-2">
-                        <h4 class="text-xl font-bold leading-3 pt-2">10:43</h4>
-                        <small>13/12/2022</small>
-                    </td>
-                    <td class="text-center">
-                        <h3 class="md:text-3xl font-bold">19°C</h3>
-                    </td>
-                    <td class="text-center">
-                        <h3 class="md:text-3xl font-bold">21%</h3>
-                    </td>
-                    <td class="text-center">
-                        <h3 class="md:text-3xl font-bold">-64dB</h3>
-                    </td>
-                    <td class="text-center">
-                        <h3 class="md:text-3xl font-bold">70%</h3>
-                    </td>
-                </tr>
-                <tr class="bg-white/10">
-                    <td class="text-center py-2">
-                        <h4 class="text-xl font-bold leading-3 pt-2">10:42</h4>
-                        <small>13/12/2022</small>
-                    </td>
-                    <td class="text-center">
-                        <h3 class="md:text-3xl font-bold">17°C</h3>
-                    </td>
-                    <td class="text-center">
-                        <h3 class="md:text-3xl font-bold">21%</h3>
-                    </td>
-                    <td class="text-center">
-                        <h3 class="md:text-3xl font-bold">-66dB</h3>
-                    </td>
-                    <td class="text-center">
-                        <h3 class="md:text-3xl font-bold">71%</h3>
-                    </td>
-                </tr>
+                <template x-for="(sensorData, index) in history[selectedSensor]">
+                    <tr>
+                        <td class="text-center py-2">
+                            <h4 x-text="sensorData.time" class="text-xl font-bold leading-3 pt-2"></h4>
+                            <small x-text="sensorData.date"></small>
+                        </td>
+                        <td class="text-center">
+                            <h3 class="md:text-3xl font-bold"><span x-text="sensorData.temp"></span> °C</h3>
+                        </td>
+                        <td class="text-center">
+                            <h3 class="md:text-3xl font-bold">
+                                <span x-text="sensorData.humid || 'N/A'"></span>
+                                <span x-show="sensorData.humid"> %</span>
+                            </h3>
+                        </td>
+                        <td class="text-center">
+                            <h3 class="md:text-3xl font-bold"><span x-text="sensorData.rssi"></span>dB</h3>
+                        </td>
+                        <td class="text-center">
+                            <h3 class="md:text-3xl font-bold"><span x-text="sensorData.batterie"></span>%</h3>
+                        </td>
+                    </tr>
+                </template>
                 </tbody>
             </table>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <script>
       const ctx = document.getElementById('myChart');
       const DATA_COUNT = 7;
@@ -315,20 +205,42 @@
         },
       });
 
-      fetch('/api/currentsensor')
-      .then((response) => response.json())
-        .then((data) => {
-            let sensor = Object.entries(data)[2][1];
+      function appXData() {
+        return {
+          init() {
+            fetch('/api/history')
+              .then((response) => response.json())
+              .then((data) => {
+                this.history = data
+                this.selectedSensor = Object.keys(data)[0]
+              })
+          },
 
-              document.getElementById('maintemp').innerText = `${sensor.temp} °C`;
-              document.getElementById('mainbatt').innerText = `${sensor.batterie}%`;
-
-            if (sensor.humid !== undefined) {
-              document.getElementById('mainhumid').innerText = `${sensor.humid}%`;
-            } else {
-              document.getElementById('mainhumid').parentElement.classList.add('hidden')
+          history: null,
+          selectedSensor: {
+            "null": {
+              "id": "null"
             }
+          }
+        }
+      }
+
+      fetch('/api/currentsensor')
+        .then((response) => response.json())
+        .then((data) => {
+          let sensor = Object.entries(data)[2][1];
+
+          document.getElementById('maintemp').innerText = `${sensor.temp} °C`;
+          document.getElementById('mainbatt').innerText = `${sensor.batterie}%`;
+
+          if (sensor.humid !== undefined) {
+            document.getElementById('mainhumid').innerText = `${sensor.humid}%`;
+          } else {
+            document.getElementById('mainhumid').parentElement.classList.add('hidden')
+          }
         });
     </script>
+
+    <script src="//unpkg.com/alpinejs" defer></script>
 </body>
 </html>

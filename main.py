@@ -108,13 +108,17 @@ class SensorHistory(Resource):
                 outHistory[item[1]] = []
 
             if len(outHistory[item[1]]) < 10:
-                outHistory[item[1]].append({
-                    "temp": item[3],
-                    "rssi": item[6],
-                    "date": item[5],
-                    "time": item[4],
-                    "batterie": item[7]
-                })
+                tempData = {
+                   "id": item[0],
+                   "temp": item[3],
+                   "rssi": item[6],
+                   "date": item[5],
+                   "time": item[4],
+                   "batterie": item[7],
+                   "humid": item[2]
+                }
+
+                outHistory[item[1]].append(tempData)
 
         return outHistory
 
