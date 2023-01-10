@@ -83,6 +83,18 @@ class RemoteSensor(Resource):
 
         return capteursObj
 
+def saveSensorData():
+    remoteSensor = RemoteSensor()
+    newSensorData = remoteSensor.get()
+    for sensorId, sensorData in newSensorData.items():
+        cur2 = sqlcon.cursor()
+        cur2.execute("INSERT INTO releves (id_capteur, humidite, temperature, heure, date, rssi, batterie) VALUES (?, ?, ?, ?, ?, ?, ?)", (sensorId, sensorData.get("humid", None), sensorData["temp"], sensorData["time"], sensorData["date"], sensorData["rssi"], sensorData["batterie"]))
+        sqlcon.commit()
+
+scheduler = BackgroundScheduler() #run saveSensorData every 60 minutes
+job = scheduler.add_job(saveSensorData, 'interval', minutes=60)
+scheduler.start()
+
 class SensorHistory(Resource):
     def get(self):
         cur3 = sqlcon.cursor()
@@ -111,20 +123,8 @@ class SensorHistory(Resource):
         return outHistory
 
 api.add_resource(HelloWorld, '/api/hello')
+api.add_resource(RemoteSensor, '/api/currentsensor')
 api.add_resource(SensorHistory, '/api/history')
-
-def saveSensorData():
-    remoteSensor = RemoteSensor()
-    newSensorData = remoteSensor.get()
-    for sensorId, sensorData in newSensorData.items():
-        cur2 = sqlcon.cursor()
-        cur2.execute("INSERT INTO releves (id_capteur, humidite, temperature, heure, date, rssi, batterie) VALUES (?, ?, ?, ?, ?, ?, ?)", (sensorId, sensorData.get("humid", None), sensorData["temp"], sensorData["time"], sensorData["date"], sensorData["rssi"], sensorData["batterie"]))
-        sqlcon.commit()
-
-scheduler = BackgroundScheduler() #run saveSensorData every 5 minutes
-job = scheduler.add_job(saveSensorData, 'interval', minutes=60)
-scheduler.start()
-saveSensorData()
 
 if __name__ == '__main__':
     app.run(debug=True, host="0.0.0.0")
