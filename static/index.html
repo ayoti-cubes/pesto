@@ -130,7 +130,7 @@
                 <template x-for="(sensorData, index) in history[selectedSensor]">
                     <tr :class="{ 'bg-white/10': index % 2 == 1 }">
                         <td class="text-center py-2 leading-4">
-                            <h4 x-text="sensorData.time.substring(0, 5)" class="text-lg lg:text-2xl font-bold leading-3"></h4>
+                            <h4 x-text="sensorData.time.substring(0, 5)" class="text-lg lg:text-2xl font-bold leading-4 pt-1 lg:leading-5"></h4>
                             <small class="text-xs" x-text="sensorData.date"></small>
                         </td>
                         <td class="text-center">
