@@ -33,7 +33,7 @@
     <div x-data="appXData()" class="flex flex-col md:flex-row gap-12 lg:container mx-auto lg:px-6 md:pb-16 h-full">
         <div class="flex flex-col gap-6 md:gap-12 w-full">
             <div class="h-96 rounded-3xl bg-white/20 w-full relative overflow-hidden">
-                <div id="currentSensorDataCont" class="flex flex-col pt-8 px-8 z-20">
+                <div class="flex flex-col pt-8 px-8 z-20">
                     <h1 x-text="history[selectedSensor][0].temp + '°C' || 'Chargement...'" class="text-7xl font-bold drop-shadow-lg"></h1>
                     <span class="drop-shadow-lg tracking-wider">
                         Batterie : <b x-text="history[selectedSensor][0].batterie + ' %'">Chargement...</b>
@@ -43,7 +43,8 @@
                     </span>
                 </div>
 
-                <div class="absolute left-0 right-0 bottom-0 z-0 h-64">
+                <div class="absolute inset-0 z-0 h-64">
+                    <div id="currentSensorDataPadding" class="h-32"></div>
                     <canvas id="graphChart"></canvas>
                 </div>
             </div>
@@ -183,9 +184,9 @@
         const datapointsHumid = []
 
         if (datapoints[0] < 0) {
-          document.getElementById('currentSensorDataCont').style.background = 'rgba(255, 255, 255, 0.3)'
+          document.getElementById('currentSensorDataPadding').style.background = 'rgba(255, 255, 255, 0.3)'
         } else {
-          document.getElementById('currentSensorDataCont').style.background = 'unset'
+          document.getElementById('currentSensorDataPadding').style.background = 'unset'
         }
 
         const data = {
