@@ -34,12 +34,12 @@
         <div class="flex flex-col gap-6 md:gap-12 w-full">
             <div class="h-96 rounded-3xl bg-white/20 w-full relative overflow-hidden">
                 <div class="flex flex-col pt-8 px-8 z-20">
-                    <h1 x-text="history[selectedSensor][0].temp + '°C' || 'Chargement...'" class="text-7xl font-bold drop-shadow-lg"></h1>
+                    <h1 x-text="getLiveSensorData().temp + '°C' || 'Chargement...'" class="text-7xl font-bold drop-shadow-lg"></h1>
                     <span class="drop-shadow-lg tracking-wider">
-                        Batterie : <b x-text="history[selectedSensor][0].batterie + ' %'">Chargement...</b>
+                        Batterie : <b x-text="getLiveSensorData().batterie + ' %'">Chargement...</b>
                     </span>
-                    <span x-show="history[selectedSensor][0].humid" class="drop-shadow-lg tracking-wider">
-                        Humidité : <b x-text="history[selectedSensor][0].humid + ' %'">Chargement...</b>
+                    <span x-show="getLiveSensorData().humid" class="drop-shadow-lg tracking-wider">
+                        Humidité : <b x-text="getLiveSensorData().humid + ' %'">Chargement...</b>
                     </span>
                 </div>
 
@@ -260,16 +260,35 @@
                 this.selectedSensor = Object.keys(data)[0]
                 makeGraph(this.history[this.selectedSensor])
               })
+
+            fetch('/api/currentsensor')
+              .then((response) => response.json())
+              .then((data) => {
+                this.liveSensorData = data
+                console.log(data)
+              })
           },
 
           selectSensor(sensor) {
-            this.selectedSensor = sensor
+            if (this.selectedSensor !== sensor) {
+              this.selectedSensor = sensor
+              makeGraph(this.history[sensor])
+            }
+          },
 
-            makeGraph(this.history[sensor])
+          getLiveSensorData() {
+            if (this.liveSensorData[this.selectedSensor] !== undefined) {
+              return this.liveSensorData[this.selectedSensor]
+            } else if (this.history[this.selectedSensor][0] !== undefined) {
+              return this.history[this.selectedSensor][0]
+            } else {
+              return {}
+            }
           },
 
           history: null,
-          selectedSensor: null
+          selectedSensor: null,
+          liveSensorData: null
         }
       }
 
