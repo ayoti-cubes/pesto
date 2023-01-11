@@ -9,7 +9,7 @@ import sqlite3
 sqlcon = sqlite3.connect("database/sensors.db", check_same_thread=False)
 cur = sqlcon.cursor()
 cur.executescript("""
-CREATE TABLE IF NOT EXISTS capteurs (id INTEGER PRIMARY KEY, nom TEXT);
+CREATE TABLE IF NOT EXISTS capteurs (id_capteur TEXT PRIMARY KEY, nom TEXT);
 CREATE TABLE IF NOT EXISTS releves
 	(id TEXT PRIMARY KEY,
 	 id_capteur TEXT,
@@ -88,7 +88,10 @@ def saveSensorData():
     newSensorData = remoteSensor.get()
     for sensorId, sensorData in newSensorData.items():
         cur2 = sqlcon.cursor()
-        cur2.execute(
+        cur2.execute(f"INSERT OR IGNORE INTO capteurs (id_capteur) VALUES ('{sensorId}')")
+
+        cur3 = sqlcon.cursor()
+        cur3.execute(
             """
                 REPLACE INTO releves (id, id_capteur, humidite, temperature, heure, date, rssi, batterie) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             """,
@@ -138,6 +141,22 @@ class SensorHistory(Resource):
 
         return outHistory
 
+class Sensors(Resource):
+    def get(self):
+        cur4 = sqlcon.cursor()
+        cur4.execute("SELECT * FROM capteurs")
+        sensorname = cur4.fetchall()
+
+        outName = {}
+
+        for item in sensorname:
+            if item[0] not in outName.keys():
+                outName[item[0]] = {
+                    "nom": item[1]
+                }
+
+        return outName
+
 @app.route('/api/register', methods=['POST'])
 def CreateAccount():
     prenom = request.form['firstName']
@@ -169,6 +188,7 @@ def login():
 api.add_resource(HelloWorld, '/api/hello')
 api.add_resource(RemoteSensor, '/api/currentsensor')
 api.add_resource(SensorHistory, '/api/history')
+api.add_resource(Sensors, '/api/sensors')
 
 if __name__ == '__main__':
     app.run(debug=True, host="0.0.0.0")
