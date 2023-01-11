@@ -50,36 +50,44 @@ class RemoteSensor(Resource):
         capteurs = ["06182660", "62182233", "06190484"]
         capteursObj = {}
 
-        for element in capteurs:
-            position = dico.find(element)
-            date = datetime.datetime.now().strftime("%Y-%m-%d")
-            time = datetime.datetime.now().strftime("%H:%M:%S")
+        while capteursObj == {}:
+            try:
+                for element in capteurs:
+                    position = dico.find(element)
+                    date = datetime.datetime.now().strftime("%Y-%m-%d")
+                    time = datetime.datetime.now().strftime("%H:%M:%S")
 
-            temp = str((dico[position + 14:position + 18]))
-            isanormal = (int(temp, 16) - 32768) > 0
-            isneg = (int(temp, 16) - 16384) > 0
+                    temp = str((dico[position + 14:position + 18]))
+                    isanormal = (int(temp, 16) - 32768) > 0
+                    isneg = (int(temp, 16) - 16384) > 0
 
-            if isneg:
-                 temp = - (int(temp, 16) - 16384) / 10
-            else:
-                 temp = int(temp, 16) / 10
+                    if isneg:
+                         temp = - (int(temp, 16) - 16384) / 10
+                    else:
+                         temp = int(temp, 16) / 10
 
-            rssi = - int(str((dico[position + 20:position + 22])), 16)
+                    rssi = - int(str((dico[position + 20:position + 22])), 16)
 
-            batterie = round((int((dico[position + 10:position + 14]), 16) / 3670) * 100, 0)
+                    batterie = round((int((dico[position + 10:position + 14]), 16) / 3670) * 100, 0)
 
-            capteursObj[element] = {
-                "temp": temp,
-                "rssi": rssi,
-                "date": date,
-                "time": time,
-                "isanormal": isanormal,
-                "isneg": isneg,
-                "batterie": batterie
-            }
-            if element == "62182233":
-                humid = int(str((dico[position + 18:position + 20])), 16)
-                capteursObj[element]["humid"] = humid
+                    capteursObj[element] = {
+                        "temp": temp,
+                        "rssi": rssi,
+                        "date": date,
+                        "time": time,
+                        "isanormal": isanormal,
+                        "isneg": isneg,
+                        "batterie": batterie
+                    }
+
+                    if element == "62182233":
+                        humid = int(str((dico[position + 18:position + 20])), 16)
+                        capteursObj[element]["humid"] = humid
+
+            except Exception as e:
+                print(e)
+                print("Problematic request:")
+                print(response)
 
         return capteursObj
 
