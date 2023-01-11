@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="fr" class="bg-black text-white">
+<head>
+  <meta charset="UTF-8">
+  <title>Inscription - AYOTI</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        fontFamily: {
+          sans: [
+            "Inter var, sans-serif",
+            { fontFeatureSettings: '"cv11", "ss01"' },
+          ],
+        },
+      },
+    }
+  </script>
+  <style type="text/tailwindcss">
+    @layer utilities {
+      [x-cloak] { display: none !important; }
+    }
+  </style>
+</head>
+<body class="flex flex-col items-center justify-center gap-4 md:gap-6 bg-gradient-to-br from-blue-900 to-blue-900/25 min-h-screen py-4 px-6 md:py-8 md:px-12">
+  <div class="flex flex-col items-center gap-4 px-6 py-4">
+    <h3 class="text-2xl font-semibold">Créer un compte AYOTI</h3>
+
+    <form x-data="{password: '', passwordConfirm: '', showNonMatchingPassword: false}" action="/api/register" method="post" id="registerForm" class="flex flex-col gap-4 w-full">
+      <input
+        type="text"
+        id="firstName"
+        name="firstName"
+        required
+        class="w-full bg-white/20 px-2 py-1 rounded-lg border-2 border-white/50 focus:ring-4 focus:ring-blue-800 transition outline-none"
+        placeholder="Prénom"
+      >
+
+      <input
+        type="text"
+        id="lastName"
+        name="lastName"
+        required
+        class="w-full bg-white/20 px-2 py-1 rounded-lg border-2 border-white/50 focus:ring-4 focus:ring-blue-800 transition outline-none"
+        placeholder="Nom"
+      >
+
+      <input
+        type="password"
+        id="password"
+        name="password"
+        x-model="password"
+        @keypress="showNonMatchingPassword = false"
+        required
+        class="w-full bg-white/20 px-2 py-1 rounded-lg border-2 border-white/50 focus:ring-4 focus:ring-blue-800 transition outline-none"
+        placeholder="Mot de passe"
+      >
+
+      <div class="relative">
+        <input
+          type="password"
+          id="passwordConfirm"
+          name="passwordConfirm"
+          x-model="passwordConfirm"
+          @keypress="showNonMatchingPassword = false"
+          required
+          class="w-full bg-white/20 px-2 py-1 rounded-lg border-2 border-white/50 focus:ring-4 focus:ring-blue-800 transition outline-none"
+          placeholder="Confirmer le mot de passe"
+        >
+
+        <span x-cloak x-show="showNonMatchingPassword" class="text-red-500 absolute right-100% px-4 top-0 bottom-0 w-full leading-4 pt-1">Les mots de passe ne correspondent pas</span>
+      </div>
+
+      <input
+        type="email"
+        id="email"
+        name="email"
+        required
+        class="w-full bg-white/20 px-2 py-1 rounded-lg border-2 border-white/50 focus:ring-4 focus:ring-blue-800 transition outline-none"
+        placeholder="Adresse e-mail"
+      >
+
+      <div class="flex flex-row justify-end items-center w-full">
+        <button
+         id="submitBtn"
+         class="text-white px-4 py-2 rounded-lg bg-blue-700 transition hover:bg-blue-800 focus:ring-4 focus:ring-blue-600 outline-none flex flex-row items-center"
+         @click.prevent="showNonMatchingPassword = password !== passwordConfirm; showNonMatchingPassword ? null : document.forms['registerForm'].requestSubmit()"
+        >
+          Valider
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <script src="//unpkg.com/alpinejs" defer></script>
+</body>
+</html>
