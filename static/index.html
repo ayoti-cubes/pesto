@@ -33,18 +33,19 @@
     <div x-data="appXData()" class="flex flex-col md:flex-row gap-12 lg:container mx-auto lg:px-6 md:pb-16 h-full">
         <div class="flex flex-col gap-6 md:gap-12 w-full">
             <div class="h-96 rounded-3xl bg-white/20 w-full relative overflow-hidden">
-                <div class="flex flex-col p-8 z-20">
-                    <h1 x-text="history[selectedSensor][0].temp + '°C' || 'Chargement...'" class="text-7xl font-bold drop-shadow-lg"></h1>
+                <div class="flex flex-col pt-8 px-8 z-20">
+                    <h1 x-text="getLiveSensorData().temp + '°C' || 'Chargement...'" class="text-7xl font-bold drop-shadow-lg"></h1>
                     <span class="drop-shadow-lg tracking-wider">
-                        Batterie : <b x-text="history[selectedSensor][0].batterie + ' %'">Chargement...</b>
+                        Batterie : <b x-text="getLiveSensorData().batterie + ' %'">Chargement...</b>
                     </span>
-                    <span x-show="history[selectedSensor][0].humid" class="drop-shadow-lg tracking-wider">
-                        Humidité : <b x-text="history[selectedSensor][0].humid + ' %'">Chargement...</b>
+                    <span x-show="getLiveSensorData().humid" class="drop-shadow-lg tracking-wider">
+                        Humidité : <b x-text="getLiveSensorData().humid + ' %'">Chargement...</b>
                     </span>
                 </div>
 
-                <div class="absolute left-0 right-0 bottom-0 z-0 h-64">
-                    <canvas id="myChart"></canvas>
+                <div class="flex flex-col absolute inset-0 z-0">
+                    <div id="currentSensorDataPadding" class="h-32 flex-shrink-0"></div>
+                    <div class="h-full"><canvas id="graphChart"></canvas></div>
                 </div>
             </div>
 
@@ -53,7 +54,7 @@
                     <button
                       class="flex flex-row gap-3 items-center h-16 px-6 outline-none transition focus:border-white/40 border-4 border-white/20 rounded-full hover:bg-white/10 hover:drop-shadow-xl relative"
                       :class="{ 'bg-white/20 hover:bg-white/20': selectedSensor == sensor }"
-                      @click="selectedSensor = sensor"
+                      @click="selectSensor(sensor)"
                     >
                         <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M10 5H5V10C6.32608 10 7.59785 9.47322 8.53553 8.53553C9.47322 7.59785 10 6.32608 10 5ZM23.3333 5H20C20 8.97825 18.4196 12.7936 15.6066 15.6066C12.7936 18.4196 8.97825 20 5 20V23.3333C15.1333 23.3333 23.3333 15.1167 23.3333 5ZM16.6667 5H13.3333C13.3333 7.21014 12.4554 9.32975 10.8926 10.8926C9.32975 12.4554 7.21014 13.3333 5 13.3333V16.6667C8.09419 16.6667 11.0617 15.4375 13.2496 13.2496C15.4375 11.0617 16.6667 8.09419 16.6667 5M16.6667 35H20C20 31.0218 21.5804 27.2064 24.3934 24.3934C27.2064 21.5804 31.0218 20 35 20V16.6667C30.1377 16.6667 25.4745 18.5982 22.0364 22.0364C18.5982 25.4745 16.6667 30.1377 16.6667 35M30 35H35V30C33.6739 30 32.4021 30.5268 31.4645 31.4645C30.5268 32.4021 30 33.6739 30 35M23.3333 35H26.6667C26.6667 32.7899 27.5446 30.6702 29.1074 29.1074C30.6702 27.5446 32.7899 26.6667 35 26.6667V23.3333C31.9058 23.3333 28.9383 24.5625 26.7504 26.7504C24.5625 28.9383 23.3333 31.9058 23.3333 35V35Z" fill="white"/>
@@ -130,7 +131,7 @@
                 <template x-for="(sensorData, index) in history[selectedSensor]">
                     <tr :class="{ 'bg-white/10': index % 2 == 1 }">
                         <td class="text-center py-2 leading-4">
-                            <h4 x-text="sensorData.time.substring(0, 5)" class="text-lg lg:text-2xl font-bold leading-3"></h4>
+                            <h4 x-text="sensorData.time.substring(0, 5)" class="text-lg lg:text-2xl font-bold leading-4 pt-1 lg:leading-5"></h4>
                             <small class="text-xs" x-text="sensorData.date"></small>
                         </td>
                         <td class="text-center">
@@ -158,65 +159,96 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <script>
-      const ctx = document.getElementById('myChart');
-      const DATA_COUNT = 7;
-      const labels = [];
-      for (let i = 0; i < DATA_COUNT; ++i) {
-        labels.push(i.toString());
-      }
-      const datapoints = [178, 175, 193, 183, 201, 198, 182];
-      const datapointstwo = [168, 167, 167, 164, 162, 162, 164];
+      let graphRef = null;
+      let currentSensorData = null;
 
-      const data = {
-        labels: labels,
-        datasets: [
-          {
-            label: 'Humidity',
-            backgroundColor: 'rgba(0, 87, 150, 0.3)',
-            data: datapointstwo,
-            borderColor: "#005796",
-            fill: true,
-            tension: 0.45,
-            pointRadius: 0
-          },
-          {
-            label: 'Temperature',
-            backgroundColor: 'rgba(255, 255, 255, 0.3)',
-            data: datapoints,
-            borderColor: "#FFFFFF",
-            fill: true,
-            tension: 0.45,
-            pointRadius: 0
-          }
-        ]
-      }
+      function makeGraph(history, showAnimation = true) {
+        try {
+          graphRef.destroy();
+        } catch (e) {}
 
-      new Chart(ctx, {
-        type: 'line',
-        data: data,
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              display: false
+        if (history != null) {
+          currentSensorData = history
+        } else {
+          history = currentSensorData
+        }
+
+        const ctx = document.getElementById('graphChart');
+        const DATA_COUNT = history.length;
+        const labels = [];
+        for (let i = 0; i < DATA_COUNT; ++i) {
+          labels.push(i.toString());
+        }
+
+        const datapoints = history.map(x => x.temp * 10).reverse()
+
+        const minGraph = Math.min(...datapoints) - 10
+        const maxGraph = Math.max(...datapoints) + 5
+        const areaGraph = maxGraph - minGraph
+        const humidAreaGraph = (areaGraph / 5) * 3
+
+        const datapointsHumid = (history[0].humid !== null) ? history.map(x => minGraph + ((x.humid * humidAreaGraph) / 100)).reverse() : []
+
+        if (datapoints[0] < 0) {
+          document.getElementById('currentSensorDataPadding').style.background = 'rgba(255, 255, 255, 0.3)'
+        } else {
+          document.getElementById('currentSensorDataPadding').style.background = 'unset'
+        }
+
+        const data = {
+          labels: labels,
+          datasets: [
+            {
+              label: 'Humidity',
+              backgroundColor: 'rgba(0, 87, 150, 0.3)',
+              data: datapointsHumid,
+              borderColor: "#005796",
+              fill: true,
+              tension: 0.45,
+              pointRadius: 0
             },
-            title: {
-              display: false
+            {
+              label: 'Temperature',
+              backgroundColor: 'rgba(255, 255, 255, 0.3)',
+              data: datapoints,
+              borderColor: "#FFFFFF",
+              fill: true,
+              tension: 0.45,
+              pointRadius: 0
+            }
+          ]
+        }
+
+        graphRef = new Chart(ctx, {
+          type: 'line',
+          data: data,
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: {
+              duration: (showAnimation) ? 1000 : 0
+            },
+            plugins: {
+              legend: {
+                display: false
+              },
+              title: {
+                display: false
+              }
+            },
+            scales: {
+              x: {
+                display: false
+              },
+              y: {
+                display: false,
+                min: minGraph,
+                max: maxGraph // HIGHEST ELEMENT PLUS AT LEAST TWO
+              }
             }
           },
-          scales: {
-            x: {
-              display: false
-            },
-            y: {
-              display: false,
-              min: 155,
-              max: 205 // HIGHEST ELEMENT PLUS AT LEAST TWO
-            }
-          }
-        },
-      });
+        });
+      }
 
       function appXData() {
         return {
@@ -226,13 +258,44 @@
               .then((data) => {
                 this.history = data
                 this.selectedSensor = Object.keys(data)[0]
+                makeGraph(this.history[this.selectedSensor])
+              })
+
+            fetch('/api/currentsensor')
+              .then((response) => response.json())
+              .then((data) => {
+                this.liveSensorData = data
+                console.log(data)
               })
           },
 
+          selectSensor(sensor) {
+            if (this.selectedSensor !== sensor) {
+              this.selectedSensor = sensor
+              makeGraph(this.history[sensor])
+            }
+          },
+
+          getLiveSensorData() {
+            if (this.liveSensorData[this.selectedSensor] !== undefined) {
+              return this.liveSensorData[this.selectedSensor]
+            } else if (this.history[this.selectedSensor][0] !== undefined) {
+              return this.history[this.selectedSensor][0]
+            } else {
+              return {}
+            }
+          },
+
           history: null,
-          selectedSensor: null
+          selectedSensor: null,
+          liveSensorData: null
         }
       }
+
+      // Prevents graph from showing a border on document resize, caused by a bug in Chart.js
+      // We diable the animation to have an instantaneous refresh
+      // TODO: Test if it could be fixed with a property or just redrawing the graph without any computation
+      addEventListener("resize", (event) => { makeGraph(null, false) });
     </script>
 
     <script src="//unpkg.com/alpinejs" defer></script>
