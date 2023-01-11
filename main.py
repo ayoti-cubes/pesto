@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, redirect, request
 from flask_restful import Resource, Api
 import requests
 import datetime
@@ -137,6 +137,34 @@ class SensorHistory(Resource):
                 outHistory[item[1]].append(tempData)
 
         return outHistory
+
+@app.route('/api/register', methods=['POST'])
+def CreateAccount():
+    prenom = request.form['firstName']
+    nom = request.form['lastName']
+    password = request.form['password']
+    mail = request.form['email']
+    
+    cur4 = sqlcon.cursor()
+    cur4.execute("SELECT * FROM users WHERE mail=?", (mail,))
+    if cur4.fetchone():
+        return "Mail already used"
+    else:
+        cur4.execute("INSERT INTO users (nom, prenom, mail, password) VALUES (?, ?, ?, ?)", (nom, prenom, mail, password))
+    sqlcon.commit()
+    return redirect('/index.html')
+
+@app.route('/api/login', methods=['POST'])
+def login():
+    mail = request.form['loginId']
+    password = request.form['password']
+
+    cur5 = sqlcon.cursor()
+    cur5.execute("SELECT * FROM users WHERE mail=? AND password=?", (mail, password))
+    if cur5.fetchone():
+        return redirect('/index.html')
+    else:
+        return "Identifiant ou mot de passe inconnu merci de bien vouloir réessayer."
 
 api.add_resource(HelloWorld, '/api/hello')
 api.add_resource(RemoteSensor, '/api/currentsensor')

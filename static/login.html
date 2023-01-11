@@ -24,32 +24,36 @@
   <div class="flex flex-col items-center gap-4 px-6 py-4">
     <h3 class="text-2xl font-semibold">Connexion à AYOTI</h3>
 
-    <input
-      type="text"
-      id="loginId"
-      name="loginId"
-      required
-      class="w-80 bg-white/20 px-2 py-1 rounded-lg border-2 border-white/50 focus:ring-4 focus:ring-blue-800 transition outline-none"
-      placeholder="Identifiant"
-    >
+    <form x-data="{password: ''}", action="/api/login" method="post" id="loginForm" class="flex flex-col gap-4 w-full">
+      <input
+        type="text"
+        id="loginId"
+        name="loginId"
+        required
+        class="w-80 bg-white/20 px-2 py-1 rounded-lg border-2 border-white/50 focus:ring-4 focus:ring-blue-800 transition outline-none"
+        placeholder="Identifiant"
+      >
 
-    <input
-      type="password"
-      id="password"
-      name="password"
-      required
-      class="w-80 bg-white/20 px-2 py-1 rounded-lg border-2 border-white/50 focus:ring-4 focus:ring-blue-800 transition outline-none"
-      placeholder="Mot de passe"
-    >
+      <input
+        type="password"
+        id="password"
+        name="password"
+        required
+        class="w-80 bg-white/20 px-2 py-1 rounded-lg border-2 border-white/50 focus:ring-4 focus:ring-blue-800 transition outline-none"
+        placeholder="Mot de passe"
+      >
 
-    <div class="flex flex-row justify-between items-center w-full">
-      <a href="register.html" class="text-blue-200 border-b border-blue-200">Créer un compte</a>
+      <div class="flex flex-row justify-between items-center w-full">
+        <a href="register.html" class="text-blue-200 border-b border-blue-200">Créer un compte</a>
 
-      <button id="loginBtn" onclick="login()" class="text-white px-4 py-2 rounded-lg bg-blue-700 transition hover:bg-blue-800 focus:ring-4 focus:ring-blue-600 outline-none flex flex-row items-center">
-        <svg id="loginBtnLoadingIcon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-refresh-cw animate-spin mr-3 flex-shrink-0 hidden"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
-        Connexion
-      </button>
-    </div>
+        <button 
+          id="loginBtn"
+          class="text-white px-4 py-2 rounded-lg bg-blue-700 transition hover:bg-blue-800 focus:ring-4 focus:ring-blue-600 outline-none flex flex-row items-center">
+          <svg id="loginBtnLoadingIcon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-refresh-cw animate-spin mr-3 flex-shrink-0 hidden"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+          Connexion
+        </button>
+      </div>
+    </form>
   </div>
 </body>
 </html>
