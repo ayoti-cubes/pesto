@@ -34,12 +34,12 @@
         <div class="flex flex-col gap-6 md:gap-12 w-full">
             <div class="h-96 rounded-3xl bg-white/20 w-full relative overflow-hidden">
                 <div class="flex flex-col pt-8 px-8 z-20">
-                    <h1 x-text="getLiveSensorData().temp + '°C' || 'Chargement...'" class="text-7xl font-bold drop-shadow-lg"></h1>
+                    <h1 x-text="getLiveSensorData() !== undefined ? getLiveSensorData().temp + '°C' : 'Chargement...'" class="text-7xl font-bold drop-shadow-lg"></h1>
                     <span class="drop-shadow-lg tracking-wider">
-                        Batterie : <b x-text="getLiveSensorData().batterie + ' %'">Chargement...</b>
+                        Batterie : <b x-text="getLiveSensorData() !== undefined ? getLiveSensorData().batterie + ' %' : 'Chargement...'"></b>
                     </span>
-                    <span x-show="getLiveSensorData().humid" class="drop-shadow-lg tracking-wider">
-                        Humidité : <b x-text="getLiveSensorData().humid + ' %'">Chargement...</b>
+                    <span x-show="getLiveSensorData()?.humid" class="drop-shadow-lg tracking-wider">
+                        Humidité : <b x-text="getLiveSensorData() !== undefined ? getLiveSensorData().humid + ' %' : 'Chargement...'"></b>
                     </span>
                 </div>
 
@@ -50,7 +50,7 @@
             </div>
 
             <div class="flex flex-col gap-4">
-                <template x-for="sensor in Object.keys(history)">
+                <template x-for="[sensor, sensorData] in Object.entries(sensors ?? {})">
                     <button
                       class="flex flex-row gap-3 items-center h-16 px-6 outline-none transition focus:border-white/40 border-4 border-white/20 rounded-full hover:bg-white/10 hover:drop-shadow-xl relative"
                       :class="{ 'bg-white/20 hover:bg-white/20': selectedSensor == sensor }"
@@ -59,8 +59,8 @@
                         <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M10 5H5V10C6.32608 10 7.59785 9.47322 8.53553 8.53553C9.47322 7.59785 10 6.32608 10 5ZM23.3333 5H20C20 8.97825 18.4196 12.7936 15.6066 15.6066C12.7936 18.4196 8.97825 20 5 20V23.3333C15.1333 23.3333 23.3333 15.1167 23.3333 5ZM16.6667 5H13.3333C13.3333 7.21014 12.4554 9.32975 10.8926 10.8926C9.32975 12.4554 7.21014 13.3333 5 13.3333V16.6667C8.09419 16.6667 11.0617 15.4375 13.2496 13.2496C15.4375 11.0617 16.6667 8.09419 16.6667 5M16.6667 35H20C20 31.0218 21.5804 27.2064 24.3934 24.3934C27.2064 21.5804 31.0218 20 35 20V16.6667C30.1377 16.6667 25.4745 18.5982 22.0364 22.0364C18.5982 25.4745 16.6667 30.1377 16.6667 35M30 35H35V30C33.6739 30 32.4021 30.5268 31.4645 31.4645C30.5268 32.4021 30 33.6739 30 35M23.3333 35H26.6667C26.6667 32.7899 27.5446 30.6702 29.1074 29.1074C30.6702 27.5446 32.7899 26.6667 35 26.6667V23.3333C31.9058 23.3333 28.9383 24.5625 26.7504 26.7504C24.5625 28.9383 23.3333 31.9058 23.3333 35V35Z" fill="white"/>
                         </svg>
-                        <span x-text="sensor" class="text-lg font-md"></span>
-                        <svg width="24" height="24" viewBox="0 0 20 12" fill="none" xmlns="http://www.w3.org/2000/svg" class="mb-0.5 opacity-50">
+                        <span x-text="sensorData.nom ?? sensor" class="text-lg font-md"></span>
+                        <svg x-if="history[sensor][0] !== null" width="24" height="24" viewBox="0 0 20 12" fill="none" xmlns="http://www.w3.org/2000/svg" class="mb-0.5 opacity-50">
                             <path x-show="history[sensor][0].batterie > 0 && history[sensor][0].batterie <= 10" d="M4 10V2L16 2V10M18 10.67V9H20V3H18V1.33C18 0.977262 17.8599 0.638971 17.6105 0.389548C17.361 0.140124 17.0227 0 16.67 0L1.33 0C0.6 0 0 0.6 0 1.33V10.67C0 11.0227 0.140124 11.361 0.389547 11.6105C0.638971 11.8599 0.977262 12 1.33 12L16.67 12C17.4 12 18 11.4 18 10.67Z" fill="white"/>
                             <path x-show="history[sensor][0].batterie > 10 && history[sensor][0].batterie <= 20" d="M5 10V2L16 2V10M18 10.67V9H20V3H18V1.33C18 0.977262 17.8599 0.638971 17.6105 0.389548C17.361 0.140124 17.0227 0 16.67 0L1.33 0C0.6 0 0 0.6 0 1.33V10.67C0 11.0227 0.140124 11.361 0.389547 11.6105C0.638971 11.8599 0.977262 12 1.33 12L16.67 12C17.4 12 18 11.4 18 10.67Z" fill="white"/>
                             <path x-show="history[sensor][0].batterie > 20 && history[sensor][0].batterie <= 30" d="M7 10V2L16 2V10M18 10.67V9H20V3H18V1.33C18 0.977262 17.8599 0.638971 17.6105 0.389548C17.361 0.140124 17.0227 0 16.67 0L1.33 0C0.6 0 0 0.6 0 1.33V10.67C0 11.0227 0.140124 11.361 0.389547 11.6105C0.638971 11.8599 0.977262 12 1.33 12L16.67 12C17.4 12 18 11.4 18 10.67Z" fill="white"/>
@@ -139,8 +139,8 @@
                         </td>
                         <td class="text-center">
                             <h3 class="text-md lg:text-3xl font-bold">
-                                <span x-text="sensorData.humid || 'N/A'"></span>
-                                <span x-show="sensorData.humid"> %</span>
+                                <span x-text="sensorData?.humid || 'N/A'"></span>
+                                <span x-show="sensorData?.humid"> %</span>
                             </h3>
                         </td>
                         <td class="text-center">
@@ -200,9 +200,9 @@
           datasets: [
             {
               label: 'Humidity',
-              backgroundColor: 'rgba(0, 87, 150, 0.3)',
+              backgroundColor: 'rgba(147, 197, 253, 0.3)',
               data: datapointsHumid,
-              borderColor: "#005796",
+              borderColor: "rgb(147 197 253)",
               fill: true,
               tension: 0.45,
               pointRadius: 0
@@ -253,6 +253,12 @@
       function appXData() {
         return {
           init() {
+            fetch('/api/sensors')
+              .then((response) => response.json())
+              .then((data) => {
+                this.sensors = data
+              })
+
             fetch('/api/history')
               .then((response) => response.json())
               .then((data) => {
@@ -265,7 +271,6 @@
               .then((response) => response.json())
               .then((data) => {
                 this.liveSensorData = data
-                console.log(data)
               })
           },
 
@@ -277,18 +282,23 @@
           },
 
           getLiveSensorData() {
-            if (this.liveSensorData[this.selectedSensor] !== undefined) {
-              return this.liveSensorData[this.selectedSensor]
-            } else if (this.history[this.selectedSensor][0] !== undefined) {
-              return this.history[this.selectedSensor][0]
-            } else {
-              return {}
+            try {
+              if (this.liveSensorData[this.selectedSensor] !== null) {
+                return this.liveSensorData[this.selectedSensor]
+              } else if (this.history[this.selectedSensor][0] !== null) {
+                return this.history[this.selectedSensor][0]
+              } else {
+                return undefined
+              }
+            } catch (e) {
+              return undefined
             }
           },
 
           history: null,
           selectedSensor: null,
-          liveSensorData: null
+          liveSensorData: null,
+          sensors: null
         }
       }
 
