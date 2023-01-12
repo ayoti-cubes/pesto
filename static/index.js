@@ -21,8 +21,8 @@ function makeGraph(history, showAnimation = true) {
 
   const datapoints = history.map(x => x.temp * 10).reverse()
 
-  const minGraph = Math.min(...datapoints) - 10
-  const maxGraph = Math.max(...datapoints) + 5
+  const minGraph = Math.min(...datapoints) - 20
+  const maxGraph = Math.max(...datapoints) + 15
   const areaGraph = maxGraph - minGraph
   const humidAreaGraph = (areaGraph / 5) * 3
 
