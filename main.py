@@ -134,7 +134,7 @@ class SensorHistory(Resource):
             if item[1] not in outHistory.keys():
                 outHistory[item[1]] = []
 
-            if len(outHistory[item[1]]) < 10:
+            if len(outHistory[item[1]]) < 24:
                 tempData = {
                    "id": item[0],
                    "temp": item[3],
