@@ -140,6 +140,40 @@ function appXData() {
       }
     },
 
+    confirmRename() {
+      fetch('/api/sensors', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ id: this.sensorToRename, nom: document.getElementById('newSensorName').value })
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.status == 'ok') {
+            this.sensors[this.sensorToRename].nom = document.getElementById('newSensorName').value
+            this.sensorToRename = null
+          }
+        })
+    },
+
+    confirmResetName() {
+      fetch('/api/sensors', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ id: this.sensorToRename })
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.status == 'ok') {
+            this.sensors[this.sensorToRename].nom = this.sensorToRename
+            this.sensorToRename = null
+          }
+        })
+    },
+
     history: null,
     selectedSensor: null,
     liveSensorData: null,

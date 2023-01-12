@@ -224,15 +224,15 @@
 
                         <div class="flex flex-col gap-2">
                             <span class="text-black/75 text-lg">Nouveau nom</span>
-                            <input type="text" required="" class="w-full bg-blue-800/20 px-4 py-2 text-lg rounded-xl border-2 border-blue-800/50 focus:ring-4 focus:ring-blue-800 transition outline-none" placeholder="Nouveau nom du capteur">
+                            <input id="newSensorName" type="text" required="" class="w-full bg-blue-800/20 px-4 py-2 text-lg rounded-xl border-2 border-blue-800/50 focus:ring-4 focus:ring-blue-800 transition outline-none" placeholder="Nouveau nom du capteur">
                         </div>
 
                         <div class="flex flex-row items-center justify-between">
-                            <button class="text-black px-4 py-3 font-semibold rounded-lg transition focus:ring-4 focus:ring-blue-600/50 outline-none flex flex-row items-center">
+                            <button @click="confirmResetName()" class="text-black px-4 py-3 font-semibold rounded-lg transition focus:ring-4 focus:ring-blue-600/50 outline-none flex flex-row items-center">
                                 Réinitialiser
                             </button>
 
-                            <button class="text-white px-8 py-3 text-lg font-semibold rounded-full bg-blue-700 transition hover:bg-blue-800 focus:ring-4 focus:ring-blue-400 outline-none flex flex-row items-center">
+                            <button @click="confirmRename()" class="text-white px-8 py-3 text-lg font-semibold rounded-full bg-blue-700 transition hover:bg-blue-800 focus:ring-4 focus:ring-blue-400 outline-none flex flex-row items-center">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-refresh-cw animate-spin mr-3 flex-shrink-0 hidden"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
                                 Modifier
                             </button>

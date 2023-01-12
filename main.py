@@ -165,6 +165,22 @@ class Sensors(Resource):
 
         return outName
 
+    def post(self):
+        data = request.get_json()
+        cur5 = sqlcon.cursor()
+        cur5.execute(f"UPDATE capteurs SET nom = '{data['nom']}' WHERE id_capteur = '{data['id']}'")
+        sqlcon.commit()
+        return {"status": "ok"}
+
+    def delete(self):
+        data = request.get_json()
+        cur6 = sqlcon.cursor()
+
+        # Replace "nom" property by null
+        cur6.execute(f"UPDATE capteurs SET nom = null WHERE id_capteur = '{data['id']}'")
+        sqlcon.commit()
+        return {"status": "ok"}
+
 @app.route('/api/register', methods=['POST'])
 def CreateAccount():
     prenom = request.form['firstName']
