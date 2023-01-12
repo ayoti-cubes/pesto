@@ -168,7 +168,7 @@ class Sensors(Resource):
     def post(self):
         data = request.get_json()
         cur5 = sqlcon.cursor()
-        cur5.execute(f"UPDATE capteurs SET nom = ? WHERE id_capteur = ?", (data["nom"], data["id"]))
+        cur5.execute("UPDATE capteurs SET nom = ? WHERE id_capteur = ?", (data["nom"], data["id"]))
         sqlcon.commit()
         return {"status": "ok"}
 
@@ -177,7 +177,7 @@ class Sensors(Resource):
         cur6 = sqlcon.cursor()
 
         # Replace "nom" property by null
-        cur6.execute(f"UPDATE capteurs SET nom = null WHERE id_capteur = ?", (data["id"]))
+        cur6.execute("UPDATE capteurs SET nom = null WHERE id_capteur = ?", (data["id"]))
         sqlcon.commit()
         return {"status": "ok"}
 
@@ -189,7 +189,7 @@ def CreateAccount():
     mail = request.form['email']
     
     cur4 = sqlcon.cursor()
-    cur4.execute("SELECT * FROM users WHERE mail=?", (mail,))
+    cur4.execute("SELECT * FROM users WHERE mail = ?", (mail))
     if cur4.fetchone():
         return "Mail already used"
     else:
