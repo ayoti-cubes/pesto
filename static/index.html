@@ -54,7 +54,7 @@
                     </svg>
                 </button>
                 <div class="flex flex-col pt-8 px-8 z-20">
-                    <h1 x-text="getLiveSensorData() !== undefined ? getLiveSensorData().temp + '°C' : 'Chargement...'" class="text-7xl font-bold drop-shadow-lg"></h1>
+                    <h1 x-text="getLiveSensorData() !== undefined ? getLiveSensorData().temp + '°C' : 'Chargement...'" class="text-7xl font-bold drop-shadow-lg" :class="{ 'text-lg md:text-7xl': getLiveSensorData() === undefined }"></h1>
                     <span class="drop-shadow-lg tracking-wider">
                         Batterie : <b x-text="getLiveSensorData() !== undefined ? getLiveSensorData().batterie + ' %' : 'Chargement...'"></b>
                     </span>
