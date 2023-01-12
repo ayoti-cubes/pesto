@@ -41,16 +41,19 @@ sqlcon.commit()
 app = Flask(__name__, static_folder='static', static_url_path='')
 api = Api(app)
 
+
 # Serves the index file on the root of the domain, in order for the user
 # to be able to access the web interface without appending /index.html to the URL
 @app.route('/')
 def root():
     return app.send_static_file('index.html')
 
+
 # Sample hello world endpoint
 class HelloWorld(Resource):
     def get(self):
         return {'hello': 'world'}
+
 
 class RemoteSensor(Resource):
     def get(self):
@@ -83,9 +86,9 @@ class RemoteSensor(Resource):
                     isneg = (int(temp, 16) - 16384) > 0
 
                     if isneg:
-                         temp = - (int(temp, 16) - 16384) / 10
+                        temp = - (int(temp, 16) - 16384) / 10
                     else:
-                         temp = int(temp, 16) / 10
+                        temp = int(temp, 16) / 10
 
                     rssi = - int(str((dico[position + 20:position + 22])), 16)
 
@@ -115,6 +118,7 @@ class RemoteSensor(Resource):
                 print(response)
 
         return capteursObj
+
 
 def saveSensorData():
     # Initialize the RemoteSensor request class, to be used outside of a request
@@ -148,6 +152,7 @@ def saveSensorData():
         )
         sqlcon.commit()
 
+
 # Run our saveSensorData function every hour
 # This will update our database with the latest sensor data
 scheduler = BackgroundScheduler()
@@ -155,6 +160,7 @@ job = scheduler.add_job(saveSensorData, 'interval', minutes=60)
 scheduler.start()
 
 saveSensorData()
+
 
 class SensorHistory(Resource):
     def get(self):
@@ -178,13 +184,13 @@ class SensorHistory(Resource):
             # Return the last 24 items for each sensor
             if len(outHistory[item[1]]) < 24:
                 tempData = {
-                   "id": item[0],
-                   "temp": item[3],
-                   "rssi": item[6],
-                   "date": item[5],
-                   "time": item[4],
-                   "batterie": item[7],
-                   "humid": item[2]
+                    "id": item[0],
+                    "temp": item[3],
+                    "rssi": item[6],
+                    "date": item[5],
+                    "time": item[4],
+                    "batterie": item[7],
+                    "humid": item[2]
                 }
 
                 outHistory[item[1]].append(tempData)
@@ -193,6 +199,7 @@ class SensorHistory(Resource):
         # for every sensor. Each sensor object contains an array of the last 24 measurements
         # for that sensor.
         return outHistory
+
 
 class Sensors(Resource):
     def get(self):
@@ -234,6 +241,7 @@ class Sensors(Resource):
         sqlcon.commit()
         return {"status": "ok"}
 
+
 class RegisterMethods(Resource):
     def post(self):
         # Get user data from request
@@ -248,9 +256,11 @@ class RegisterMethods(Resource):
         if cur4.fetchone():
             return "Mail already used"
         else:
-            cur4.execute("INSERT INTO users (nom, prenom, mail, password) VALUES (?, ?, ?, ?)", (nom, prenom, mail, password))
+            cur4.execute("INSERT INTO users (nom, prenom, mail, password) VALUES (?, ?, ?, ?)",
+                         (nom, prenom, mail, password))
         sqlcon.commit()
         return redirect('/index.html')
+
 
 class UserMethods(Resource):
     def post(self):
@@ -272,6 +282,7 @@ class UserMethods(Resource):
             # This can be done with for example a redirection to the login page, with
             # the error parameter passed in the URL, that will be treated by the page
             return "Identifiant ou mot de passe inconnu merci de bien vouloir réessayer."
+
 
 # Declare all routes
 api.add_resource(HelloWorld, '/api/hello')
