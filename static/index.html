@@ -5,6 +5,18 @@
     <title>AYOTI</title>
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Social meta tags -->
+    <meta property="og:title" content="AYOTI" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://ayoti.rchartier.dev/" />
+    <meta property="og:image" content="https://ayoti.rchartier.dev/banner.png" />
+    <meta property="og:description" content="Interface web du projet AYOTI, traqueur de températures en temps réel" />
+    <meta property="og:site_name" content="AYOTI" />
+    <meta property="og:locale" content="fr_FR" />
+
+    <meta name="theme-color" content="#112356">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
     <script>
@@ -19,8 +31,13 @@
         },
       }
     </script>
+    <style type="text/tailwindcss">
+      @layer utilities {
+        [x-cloak] { display: none !important; }
+      }
+    </style>
 </head>
-<body class="flex flex-col gap-4 md:gap-6 bg-gradient-to-br from-blue-900 to-blue-900/25 min-h-screen py-4 px-6 md:py-8 md:px-12">
+<body x-data="appXData()" class="flex flex-col gap-4 md:gap-6 bg-gradient-to-br from-blue-900 to-blue-900/25 min-h-screen py-4 px-6 md:py-8 md:px-12">
     <div class="flex flex-row justify-end w-full gap-6">
         <div class="flex flex-col justify-center text-right">
             <span class="text-lg font-bold leading-5 pt-1">Prénom Nom</span>
@@ -30,37 +47,52 @@
         <img src="https://thispersondoesnotexist.com/image" class="h-16 w-16 rounded-full">
     </div>
 
-    <div x-data="appXData()" class="flex flex-col md:flex-row gap-12 lg:container mx-auto lg:px-6 md:pb-16 h-full">
+    <div class="flex flex-col md:flex-row gap-12 xl:container mx-auto xl:px-6 md:pb-16 h-full">
         <div class="flex flex-col gap-6 md:gap-12 w-full">
-            <div class="h-96 rounded-3xl bg-white/20 w-full relative overflow-hidden">
+            <!-- Refresh live data every 5 minutes -->
+            <div x-init="$interval(refreshLiveData, 300000)" class="h-96 rounded-3xl bg-white/20 w-full relative overflow-hidden">
+                <button
+                 class="absolute top-6 right-6 h-12 w-12 flex items-center justify-center transition z-30 rounded-full"
+                 x-bind:disabled="isFetchingLiveData"
+                 :class="{ 'hover:bg-white/20': !isFetchingLiveData }"
+                 @click="refreshLiveData()"
+                >
+                    <svg
+                     xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                     class="feather feather-refresh-cw"
+                     :class="{ 'animate-spin': isFetchingLiveData }"
+                    >
+                        <polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                    </svg>
+                </button>
                 <div class="flex flex-col pt-8 px-8 z-20">
-                    <h1 x-text="getLiveSensorData().temp + '°C' || 'Chargement...'" class="text-7xl font-bold drop-shadow-lg"></h1>
+                    <h1 x-text="getLiveSensorData() !== undefined ? getLiveSensorData().temp + '°C' : '...'" class="text-7xl font-bold drop-shadow-lg"></h1>
                     <span class="drop-shadow-lg tracking-wider">
-                        Batterie : <b x-text="getLiveSensorData().batterie + ' %'">Chargement...</b>
+                        Batterie : <b x-text="getLiveSensorData() !== undefined ? getLiveSensorData().batterie + ' %' : 'Chargement...'"></b>
                     </span>
-                    <span x-show="getLiveSensorData().humid" class="drop-shadow-lg tracking-wider">
-                        Humidité : <b x-text="getLiveSensorData().humid + ' %'">Chargement...</b>
+                    <span x-show="getLiveSensorData()?.humid" class="drop-shadow-lg tracking-wider">
+                        Humidité : <b x-text="getLiveSensorData() !== undefined ? getLiveSensorData().humid + ' %' : 'Chargement...'"></b>
                     </span>
                 </div>
 
                 <div class="flex flex-col absolute inset-0 z-0">
                     <div id="currentSensorDataPadding" class="h-32 flex-shrink-0"></div>
-                    <div class="h-full"><canvas id="graphChart"></canvas></div>
+                    <div class="h-full"><canvas id="graphChart" class="rounded-b-3xl"></canvas></div>
                 </div>
             </div>
 
             <div class="flex flex-col gap-4">
-                <template x-for="sensor in Object.keys(history)">
+                <template x-for="[sensor, sensorData] in Object.entries(sensors ?? {})">
                     <button
                       class="flex flex-row gap-3 items-center h-16 px-6 outline-none transition focus:border-white/40 border-4 border-white/20 rounded-full hover:bg-white/10 hover:drop-shadow-xl relative"
                       :class="{ 'bg-white/20 hover:bg-white/20': selectedSensor == sensor }"
                       @click="selectSensor(sensor)"
                     >
-                        <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" class="flex-shrink-0">
                             <path d="M10 5H5V10C6.32608 10 7.59785 9.47322 8.53553 8.53553C9.47322 7.59785 10 6.32608 10 5ZM23.3333 5H20C20 8.97825 18.4196 12.7936 15.6066 15.6066C12.7936 18.4196 8.97825 20 5 20V23.3333C15.1333 23.3333 23.3333 15.1167 23.3333 5ZM16.6667 5H13.3333C13.3333 7.21014 12.4554 9.32975 10.8926 10.8926C9.32975 12.4554 7.21014 13.3333 5 13.3333V16.6667C8.09419 16.6667 11.0617 15.4375 13.2496 13.2496C15.4375 11.0617 16.6667 8.09419 16.6667 5M16.6667 35H20C20 31.0218 21.5804 27.2064 24.3934 24.3934C27.2064 21.5804 31.0218 20 35 20V16.6667C30.1377 16.6667 25.4745 18.5982 22.0364 22.0364C18.5982 25.4745 16.6667 30.1377 16.6667 35M30 35H35V30C33.6739 30 32.4021 30.5268 31.4645 31.4645C30.5268 32.4021 30 33.6739 30 35M23.3333 35H26.6667C26.6667 32.7899 27.5446 30.6702 29.1074 29.1074C30.6702 27.5446 32.7899 26.6667 35 26.6667V23.3333C31.9058 23.3333 28.9383 24.5625 26.7504 26.7504C24.5625 28.9383 23.3333 31.9058 23.3333 35V35Z" fill="white"/>
                         </svg>
-                        <span x-text="sensor" class="text-lg font-md"></span>
-                        <svg width="24" height="24" viewBox="0 0 20 12" fill="none" xmlns="http://www.w3.org/2000/svg" class="mb-0.5 opacity-50">
+                        <span x-text="sensorData.nom ?? sensor" class="text-lg font-md leading-4"></span>
+                        <svg x-if="history[sensor][0] !== null" width="24" height="24" viewBox="0 0 20 12" fill="none" xmlns="http://www.w3.org/2000/svg" class="mb-0.5 opacity-50 flex-shrink-0">
                             <path x-show="history[sensor][0].batterie > 0 && history[sensor][0].batterie <= 10" d="M4 10V2L16 2V10M18 10.67V9H20V3H18V1.33C18 0.977262 17.8599 0.638971 17.6105 0.389548C17.361 0.140124 17.0227 0 16.67 0L1.33 0C0.6 0 0 0.6 0 1.33V10.67C0 11.0227 0.140124 11.361 0.389547 11.6105C0.638971 11.8599 0.977262 12 1.33 12L16.67 12C17.4 12 18 11.4 18 10.67Z" fill="white"/>
                             <path x-show="history[sensor][0].batterie > 10 && history[sensor][0].batterie <= 20" d="M5 10V2L16 2V10M18 10.67V9H20V3H18V1.33C18 0.977262 17.8599 0.638971 17.6105 0.389548C17.361 0.140124 17.0227 0 16.67 0L1.33 0C0.6 0 0 0.6 0 1.33V10.67C0 11.0227 0.140124 11.361 0.389547 11.6105C0.638971 11.8599 0.977262 12 1.33 12L16.67 12C17.4 12 18 11.4 18 10.67Z" fill="white"/>
                             <path x-show="history[sensor][0].batterie > 20 && history[sensor][0].batterie <= 30" d="M7 10V2L16 2V10M18 10.67V9H20V3H18V1.33C18 0.977262 17.8599 0.638971 17.6105 0.389548C17.361 0.140124 17.0227 0 16.67 0L1.33 0C0.6 0 0 0.6 0 1.33V10.67C0 11.0227 0.140124 11.361 0.389547 11.6105C0.638971 11.8599 0.977262 12 1.33 12L16.67 12C17.4 12 18 11.4 18 10.67Z" fill="white"/>
@@ -73,8 +105,8 @@
                             <path x-show="history[sensor][0].batterie > 90 && history[sensor][0].batterie <= 100" d="M18 10.67V9H20V3H18V1.33C18 0.977262 17.8599 0.638971 17.6105 0.389548C17.361 0.140124 17.0227 0 16.67 0L1.33 0C0.6 0 0 0.6 0 1.33V10.67C0 11.0227 0.140124 11.361 0.389547 11.6105C0.638971 11.8599 0.977262 12 1.33 12L16.67 12C17.4 12 18 11.4 18 10.67Z" fill="white"/>
                         </svg>
 
-                        <div class="absolute right-0">
-                            <svg width="32" height="32" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" class="mr-4">
+                        <div class="ml-auto">
+                            <svg @click="sensorToRename = sensor" width="32" height="32" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M25 26.6667L18.3333 33.3333H35V26.6667H25ZM20.1 11.9833L5 27.0833V33.3333H11.25L26.35 18.2333L20.1 11.9833ZM31.1833 13.4C31.8333 12.75 31.8333 11.6667 31.1833 11.05L27.2833 7.14999C26.9709 6.83997 26.5485 6.66602 26.1083 6.66602C25.6682 6.66602 25.2458 6.83997 24.9333 7.14999L21.8833 10.2L28.1333 16.45L31.1833 13.4Z" fill="white"/>
                             </svg>
                         </div>
@@ -128,7 +160,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                <template x-for="(sensorData, index) in history[selectedSensor]">
+                <template x-for="(sensorData, index) in history[selectedSensor].slice(0, 10)">
                     <tr :class="{ 'bg-white/10': index % 2 == 1 }">
                         <td class="text-center py-2 leading-4">
                             <h4 x-text="sensorData.time.substring(0, 5)" class="text-lg lg:text-2xl font-bold leading-4 pt-1 lg:leading-5"></h4>
@@ -139,8 +171,8 @@
                         </td>
                         <td class="text-center">
                             <h3 class="text-md lg:text-3xl font-bold">
-                                <span x-text="sensorData.humid || 'N/A'"></span>
-                                <span x-show="sensorData.humid"> %</span>
+                                <span x-text="sensorData?.humid || 'N/A'"></span>
+                                <span x-show="sensorData?.humid"> %</span>
                             </h3>
                         </td>
                         <td class="text-center">
@@ -156,148 +188,82 @@
         </div>
     </div>
 
+    <!-- Rename popup -->
+    <div x-show="sensorToRename != null" x-cloak class="fixed z-50 inset-0 overflow-hidden select-none"
+         x-ref="dialog" role="dialog" aria-modal="true">
+        <div class="flex items-end sm:items-center justify-center min-h-screen pt-4 px-6 pb-20 md:pb-2 text-center">
+            <div x-show="sensorToRename != null" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0"
+                 x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-200"
+                 x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+                 x-description="Background overlay, show/hide based on modal state."
+                 class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
+                 aria-hidden="true"></div>
+
+            <!-- This element is to trick the browser into centering the modal contents. -->
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">​</span>
+
+            <div x-show="sensorToRename != null" x-cloak x-transition:enter="ease-out duration-300"
+                 x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                 x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                 x-transition:leave="ease-in duration-200"
+                 x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                 x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                 x-description="Modal panel, show/hide based on modal state."
+                 class="inline-block align-bottom bg-white rounded-3xl text-left overflow-hidden shadow-xl transform transition-all lg:align-middle sm:max-w-2xl sm:w-full">
+                <div>
+                    <div class="flex flex-col gap-6 rounded-xl px-6 py-6 md:px-8 w-full flex flex-col text-black">
+                        <div class="flex flex-row justify-between items-center gap-3">
+                            <h2 class="text-2xl md:text-3xl font-semibold leading-5 md:leading-6">Modifier le nom du capteur</h2>
+                            <button @click="sensorToRename = null">
+                                <svg width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg" class="flex-shrink-0">
+                                    <path d="M30.0834 10.1492L27.8509 7.91666L19.0001 16.7675L10.1492 7.91666L7.91675 10.1492L16.7676 19L7.91675 27.8508L10.1492 30.0833L19.0001 21.2325L27.8509 30.0833L30.0834 27.8508L21.2326 19L30.0834 10.1492Z" fill="black"/>
+                                </svg>
+                            </button>
+                        </div>
+
+                        <div class="flex flex-row gap-3 items-center h-16 px-6 outline-none transition border-2 bg-black/20 border-black/50 rounded-full relative">
+                            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M10 5H5V10C6.32608 10 7.59785 9.47322 8.53553 8.53553C9.47322 7.59785 10 6.32608 10 5ZM23.3333 5H20C20 8.97825 18.4196 12.7936 15.6066 15.6066C12.7936 18.4196 8.97825 20 5 20V23.3333C15.1333 23.3333 23.3333 15.1167 23.3333 5ZM16.6667 5H13.3333C13.3333 7.21014 12.4554 9.32975 10.8926 10.8926C9.32975 12.4554 7.21014 13.3333 5 13.3333V16.6667C8.09419 16.6667 11.0617 15.4375 13.2496 13.2496C15.4375 11.0617 16.6667 8.09419 16.6667 5M16.6667 35H20C20 31.0218 21.5804 27.2064 24.3934 24.3934C27.2064 21.5804 31.0218 20 35 20V16.6667C30.1377 16.6667 25.4745 18.5982 22.0364 22.0364C18.5982 25.4745 16.6667 30.1377 16.6667 35M30 35H35V30C33.6739 30 32.4021 30.5268 31.4645 31.4645C30.5268 32.4021 30 33.6739 30 35M23.3333 35H26.6667C26.6667 32.7899 27.5446 30.6702 29.1074 29.1074C30.6702 27.5446 32.7899 26.6667 35 26.6667V23.3333C31.9058 23.3333 28.9383 24.5625 26.7504 26.7504C24.5625 28.9383 23.3333 31.9058 23.3333 35V35Z" fill="black"/>
+                            </svg>
+                            <span x-text="sensors[sensorToRename].nom ?? sensorToRename" class="text-lg font-md leading-4"></span>
+                            <svg x-if="history[sensorToRename][0] !== null" width="24" height="24" viewBox="0 0 20 12" fill="black" xmlns="http://www.w3.org/2000/svg" class="mb-0.5 opacity-75 flex-shrink-0">
+                                <path x-show="history[sensorToRename][0].batterie > 0 && history[sensorToRename][0].batterie <= 10" d="M4 10V2L16 2V10M18 10.67V9H20V3H18V1.33C18 0.977262 17.8599 0.638971 17.6105 0.389548C17.361 0.140124 17.0227 0 16.67 0L1.33 0C0.6 0 0 0.6 0 1.33V10.67C0 11.0227 0.140124 11.361 0.389547 11.6105C0.638971 11.8599 0.977262 12 1.33 12L16.67 12C17.4 12 18 11.4 18 10.67Z"/>
+                                <path x-show="history[sensorToRename][0].batterie > 10 && history[sensorToRename][0].batterie <= 20" d="M5 10V2L16 2V10M18 10.67V9H20V3H18V1.33C18 0.977262 17.8599 0.638971 17.6105 0.389548C17.361 0.140124 17.0227 0 16.67 0L1.33 0C0.6 0 0 0.6 0 1.33V10.67C0 11.0227 0.140124 11.361 0.389547 11.6105C0.638971 11.8599 0.977262 12 1.33 12L16.67 12C17.4 12 18 11.4 18 10.67Z"/>
+                                <path x-show="history[sensorToRename][0].batterie > 20 && history[sensorToRename][0].batterie <= 30" d="M7 10V2L16 2V10M18 10.67V9H20V3H18V1.33C18 0.977262 17.8599 0.638971 17.6105 0.389548C17.361 0.140124 17.0227 0 16.67 0L1.33 0C0.6 0 0 0.6 0 1.33V10.67C0 11.0227 0.140124 11.361 0.389547 11.6105C0.638971 11.8599 0.977262 12 1.33 12L16.67 12C17.4 12 18 11.4 18 10.67Z"/>
+                                <path x-show="history[sensorToRename][0].batterie > 30 && history[sensorToRename][0].batterie <= 40" d="M8 10V2L16 2V10M18 10.67V9H20V3H18V1.33C18 0.977262 17.8599 0.638971 17.6105 0.389548C17.361 0.140124 17.0227 0 16.67 0L1.33 0C0.6 0 0 0.6 0 1.33V10.67C0 11.0227 0.140124 11.361 0.389547 11.6105C0.638971 11.8599 0.977262 12 1.33 12L16.67 12C17.4 12 18 11.4 18 10.67Z"/>
+                                <path x-show="history[sensorToRename][0].batterie > 40 && history[sensorToRename][0].batterie <= 50" d="M9 10V2L16 2V10M18 10.67V9H20V3H18V1.33C18 0.977262 17.8599 0.638971 17.6105 0.389548C17.361 0.140124 17.0227 0 16.67 0L1.33 0C0.6 0 0 0.6 0 1.33V10.67C0 11.0227 0.140124 11.361 0.389547 11.6105C0.638971 11.8599 0.977262 12 1.33 12L16.67 12C17.4 12 18 11.4 18 10.67Z"/>
+                                <path x-show="history[sensorToRename][0].batterie > 50 && history[sensorToRename][0].batterie <= 60" d="M10 10V2H16V10M18 10.67V9H20V3H18V1.33C18 0.977262 17.8599 0.638971 17.6105 0.389548C17.361 0.140124 17.0227 0 16.67 0L1.33 0C0.6 0 0 0.6 0 1.33V10.67C0 11.0227 0.140124 11.361 0.389547 11.6105C0.638971 11.8599 0.977262 12 1.33 12L16.67 12C17.4 12 18 11.4 18 10.67Z"/>
+                                <path x-show="history[sensorToRename][0].batterie > 60 && history[sensorToRename][0].batterie <= 70" d="M12 10V2H16V10M18 10.67V9H20V3H18V1.33C18 0.977262 17.8599 0.638971 17.6105 0.389548C17.361 0.140124 17.0227 0 16.67 0L1.33 0C0.6 0 0 0.6 0 1.33V10.67C0 11.0227 0.140124 11.361 0.389547 11.6105C0.638971 11.8599 0.977262 12 1.33 12L16.67 12C17.4 12 18 11.4 18 10.67Z"/>
+                                <path x-show="history[sensorToRename][0].batterie > 70 && history[sensorToRename][0].batterie <= 80" d="M13 10V2H16V10M18 10.67V9H20V3H18V1.33C18 0.977262 17.8599 0.638971 17.6105 0.389548C17.361 0.140124 17.0227 0 16.67 0L1.33 0C0.6 0 0 0.6 0 1.33V10.67C0 11.0227 0.140124 11.361 0.389547 11.6105C0.638971 11.8599 0.977262 12 1.33 12L16.67 12C17.4 12 18 11.4 18 10.67Z"/>
+                                <path x-show="history[sensorToRename][0].batterie > 80 && history[sensorToRename][0].batterie <= 90" d="M14 10V2H16V10M18 10.67V9H20V3H18V1.33C18 0.977262 17.8599 0.638971 17.6105 0.389548C17.361 0.140124 17.0227 0 16.67 0L1.33 0C0.6 0 0 0.6 0 1.33V10.67C0 11.0227 0.140124 11.361 0.389547 11.6105C0.638971 11.8599 0.977262 12 1.33 12L16.67 12C17.4 12 18 11.4 18 10.67Z"/>
+                                <path x-show="history[sensorToRename][0].batterie > 90 && history[sensorToRename][0].batterie <= 100" d="M18 10.67V9H20V3H18V1.33C18 0.977262 17.8599 0.638971 17.6105 0.389548C17.361 0.140124 17.0227 0 16.67 0L1.33 0C0.6 0 0 0.6 0 1.33V10.67C0 11.0227 0.140124 11.361 0.389547 11.6105C0.638971 11.8599 0.977262 12 1.33 12L16.67 12C17.4 12 18 11.4 18 10.67Z"/>
+                            </svg>
+                        </div>
+
+                        <div class="flex flex-col gap-2">
+                            <span class="text-black/75 text-lg">Nouveau nom</span>
+                            <input id="newSensorName" type="text" required="" class="w-full bg-blue-800/20 px-4 py-2 text-lg rounded-xl border-2 border-blue-800/50 focus:ring-4 focus:ring-blue-800 transition outline-none" placeholder="Nouveau nom du capteur">
+                        </div>
+
+                        <div class="flex flex-row items-center justify-between">
+                            <button @click="confirmResetName()" class="text-black px-4 py-3 font-semibold rounded-lg transition focus:ring-4 focus:ring-blue-600/50 outline-none flex flex-row items-center">
+                                Réinitialiser
+                            </button>
+
+                            <button @click="confirmRename()" class="text-white px-8 py-3 text-lg font-semibold rounded-full bg-blue-700 transition hover:bg-blue-800 focus:ring-4 focus:ring-blue-400 outline-none flex flex-row items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-refresh-cw animate-spin mr-3 flex-shrink-0 hidden"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+                                Modifier
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-    <script>
-      let graphRef = null;
-      let currentSensorData = null;
-
-      function makeGraph(history, showAnimation = true) {
-        try {
-          graphRef.destroy();
-        } catch (e) {}
-
-        if (history != null) {
-          currentSensorData = history
-        } else {
-          history = currentSensorData
-        }
-
-        const ctx = document.getElementById('graphChart');
-        const DATA_COUNT = history.length;
-        const labels = [];
-        for (let i = 0; i < DATA_COUNT; ++i) {
-          labels.push(i.toString());
-        }
-
-        const datapoints = history.map(x => x.temp * 10).reverse()
-
-        const minGraph = Math.min(...datapoints) - 10
-        const maxGraph = Math.max(...datapoints) + 5
-        const areaGraph = maxGraph - minGraph
-        const humidAreaGraph = (areaGraph / 5) * 3
-
-        const datapointsHumid = (history[0].humid !== null) ? history.map(x => minGraph + ((x.humid * humidAreaGraph) / 100)).reverse() : []
-
-        if (datapoints[0] < 0) {
-          document.getElementById('currentSensorDataPadding').style.background = 'rgba(255, 255, 255, 0.3)'
-        } else {
-          document.getElementById('currentSensorDataPadding').style.background = 'unset'
-        }
-
-        const data = {
-          labels: labels,
-          datasets: [
-            {
-              label: 'Humidity',
-              backgroundColor: 'rgba(0, 87, 150, 0.3)',
-              data: datapointsHumid,
-              borderColor: "#005796",
-              fill: true,
-              tension: 0.45,
-              pointRadius: 0
-            },
-            {
-              label: 'Temperature',
-              backgroundColor: 'rgba(255, 255, 255, 0.3)',
-              data: datapoints,
-              borderColor: "#FFFFFF",
-              fill: true,
-              tension: 0.45,
-              pointRadius: 0
-            }
-          ]
-        }
-
-        graphRef = new Chart(ctx, {
-          type: 'line',
-          data: data,
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            animation: {
-              duration: (showAnimation) ? 1000 : 0
-            },
-            plugins: {
-              legend: {
-                display: false
-              },
-              title: {
-                display: false
-              }
-            },
-            scales: {
-              x: {
-                display: false
-              },
-              y: {
-                display: false,
-                min: minGraph,
-                max: maxGraph // HIGHEST ELEMENT PLUS AT LEAST TWO
-              }
-            }
-          },
-        });
-      }
-
-      function appXData() {
-        return {
-          init() {
-            fetch('/api/history')
-              .then((response) => response.json())
-              .then((data) => {
-                this.history = data
-                this.selectedSensor = Object.keys(data)[0]
-                makeGraph(this.history[this.selectedSensor])
-              })
-
-            fetch('/api/currentsensor')
-              .then((response) => response.json())
-              .then((data) => {
-                this.liveSensorData = data
-                console.log(data)
-              })
-          },
-
-          selectSensor(sensor) {
-            if (this.selectedSensor !== sensor) {
-              this.selectedSensor = sensor
-              makeGraph(this.history[sensor])
-            }
-          },
-
-          getLiveSensorData() {
-            if (this.liveSensorData[this.selectedSensor] !== undefined) {
-              return this.liveSensorData[this.selectedSensor]
-            } else if (this.history[this.selectedSensor][0] !== undefined) {
-              return this.history[this.selectedSensor][0]
-            } else {
-              return {}
-            }
-          },
-
-          history: null,
-          selectedSensor: null,
-          liveSensorData: null
-        }
-      }
-
-      // Prevents graph from showing a border on document resize, caused by a bug in Chart.js
-      // We diable the animation to have an instantaneous refresh
-      // TODO: Test if it could be fixed with a property or just redrawing the graph without any computation
-      addEventListener("resize", (event) => { makeGraph(null, false) });
-    </script>
-
+    <script src="https://unpkg.com/@alpine-collective/toolkit-interval@1.0.2/dist/cdn.min.js" defer></script>
     <script src="//unpkg.com/alpinejs" defer></script>
+    <script src="index.js"></script>
 </body>
 </html>
