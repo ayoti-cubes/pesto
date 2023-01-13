@@ -278,10 +278,7 @@ class UserMethods(Resource):
         if cur5.fetchone():
             return redirect('/index.html')
         else:
-            # TODO: Use page layout for error displaying rather than a text-only result
-            # This can be done with for example a redirection to the login page, with
-            # the error parameter passed in the URL, that will be treated by the page
-            return "Identifiant ou mot de passe inconnu merci de bien vouloir réessayer."
+            return redirect('/login.html?error=wrongUsernameOrPassword')
 
 
 # Declare all routes
