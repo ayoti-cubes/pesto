@@ -228,9 +228,11 @@ class Sensors(Resource):
         data = request.get_json()
         cur5 = sqlcon.cursor()
 
-        cur5.execute("UPDATE capteurs SET nom = ? WHERE id_capteur = ?", (data["nom"], data["id"]))
-        sqlcon.commit()
-        return {"status": "ok"}
+        if (len(data["nom"]) < 100):
+            cur5.execute("UPDATE capteurs SET nom = ? WHERE id_capteur = ?", (data["nom"], data["id"]))
+            sqlcon.commit()
+
+            return {"status": "ok"}
 
     def delete(self):
         data = request.get_json()
